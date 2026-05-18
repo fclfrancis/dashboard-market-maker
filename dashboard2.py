@@ -5,7 +5,8 @@
 ╚══════════════════════════════════════════════════════════════════╝
 """
 
-import json, os, re, math, glob
+import json, os, re, math, glob, io
+import requests
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -967,38 +968,56 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    uploaded_files = st.file_uploader(
-        "📂 Carregar arquivos JSON:",
-        type=["json"],
-        accept_multiple_files=True,
-        help="Selecione um ou mais arquivos .json exportados do Barchart.",
-    )
+    # ── Configuração do repositório GitHub ──
+    GITHUB_USER = "fclfrancis"
+    GITHUB_REPO = "dashboard-market-maker"
+    GITHUB_BRANCH = "main"
+    GITHUB_PASTA = "dados"  # pasta dentro do repo onde ficam os JSONs
 
-    arquivos_encontrados = uploaded_files or []
+    API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{GITHUB_PASTA}?ref={GITHUB_BRANCH}"
+    RAW_BASE = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}/{GITHUB_PASTA}"
 
-    if arquivos_encontrados:
-        nomes_arquivos = [f.name for f in arquivos_encontrados]
-        st.info(f"✅ {len(nomes_arquivos)} arquivos carregados.")
-        with st.expander("📄 Ver arquivos carregados"):
-            st.write(nomes_arquivos)
+    @st.cache_data(ttl=60)
+    def listar_arquivos_github():
+        try:
+            r = requests.get(API_URL, timeout=10)
+            if r.status_code == 200:
+                return [f["name"] for f in r.json() if f["name"].endswith(".json")]
+        except:
+            pass
+        return []
+
+    @st.cache_data(ttl=60)
+    def baixar_json_github(nome_arquivo):
+        url = f"{RAW_BASE}/{nome_arquivo}"
+        try:
+            r = requests.get(url, timeout=10)
+            if r.status_code == 200:
+                return r.json()
+        except:
+            pass
+        return None
+
+    nomes_disponiveis = listar_arquivos_github()
+
+    if nomes_disponiveis:
+        st.info(f"✅ {len(nomes_disponiveis)} arquivos no GitHub.")
+        with st.expander("📄 Ver arquivos disponíveis"):
+            st.write(nomes_disponiveis)
+    else:
+        st.warning("⚠ Nenhum JSON encontrado na pasta 'dados/' do repositório.")
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
 
     snapshots = {}
-    if arquivos_encontrados:
-        snapshots = agrupar_snapshots([f.name for f in arquivos_encontrados])
-        # mapeia chave -> lista de objetos de arquivo (UploadedFile)
-        nome_para_arquivo = {f.name: f for f in arquivos_encontrados}
-        snapshots = {
-            chave: [nome_para_arquivo[n] for n in nomes if n in nome_para_arquivo]
-            for chave, nomes in snapshots.items()
-        }
+    if nomes_disponiveis:
+        snapshots = agrupar_snapshots(nomes_disponiveis)
 
     if snapshots:
         momento = st.selectbox("📅 Snapshot (data):", list(snapshots.keys()))
     else:
         momento = None
-        st.info("Aguardando upload dos arquivos...")
+        st.info("Aguardando arquivos no GitHub...")
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
 
@@ -1015,13 +1034,15 @@ with st.sidebar:
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
 
     _sb_key = f"pcp_sb_{momento}"
-    if _sb_key not in st.session_state and arquivos_encontrados and momento and snapshots.get(momento):
+    if _sb_key not in st.session_state and momento and snapshots.get(momento):
         _frames_sb = []
-        for a in snapshots[momento]:
-            a.seek(0)
-            _f = parse_json(a)
-            if _f is not None and not _f.empty:
-                _frames_sb.append(_f)
+        for nome in snapshots[momento]:
+            js = baixar_json_github(nome)
+            if js:
+                import io
+                _f = parse_json(io.StringIO(json.dumps(js)))
+                if _f is not None and not _f.empty:
+                    _frames_sb.append(_f)
         if _frames_sb:
             st.session_state[_sb_key] = calcular_pcp_detalhado(
                 pd.concat(_frames_sb, ignore_index=True)
@@ -1087,7 +1108,7 @@ st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
 # ══════════════════════════════════════════════════════════════════
 
 if not momento:
-    st.markdown(alert_box("⬆ Faça o upload dos arquivos JSON na sidebar para iniciar a análise.", "info"),
+    st.markdown(alert_box("⬆ Aguardando arquivos JSON na pasta 'dados/' do repositório GitHub.", "info"),
                 unsafe_allow_html=True)
     st.stop()
 
@@ -1097,11 +1118,13 @@ if not momento:
 
 lista_arq = snapshots[momento]
 frames    = []
-for arq in lista_arq:
-    arq.seek(0)
-    f = parse_json(arq)
-    if f is not None and not f.empty:
-        frames.append(f)
+for nome in lista_arq:
+    js = baixar_json_github(nome)
+    if js:
+        import io
+        f = parse_json(io.StringIO(json.dumps(js)))
+        if f is not None and not f.empty:
+            frames.append(f)
 
 if not frames:
     st.error("❌ Nenhum dado válido nos arquivos selecionados.")
