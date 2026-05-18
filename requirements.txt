@@ -1,5 +1,7 @@
-streamlit==1.32.0
+streamlit>=1.40.0
 streamlit-autorefresh==1.0.1
 numpy
 pandas
 plotly
+pillow>=11.0.0
+ 
