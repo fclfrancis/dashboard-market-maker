@@ -4,4 +4,4 @@ numpy
 pandas
 plotly
 pillow>=11.0.0
- 
+requests
