@@ -221,6 +221,85 @@ hr { border-color:rgba(0,255,255,0.15) !important; }
 st.markdown(HUD_CSS, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
+# LOGIN · CONTROLE DE ACESSO POR EMAIL
+# ══════════════════════════════════════════════════════════════════
+
+import yaml
+
+@st.cache_data(ttl=300)
+def carregar_emails_autorizados():
+    """Lê a lista de emails autorizados do config.yaml no GitHub."""
+    GITHUB_USER   = "fclfrancis"
+    GITHUB_REPO   = "dashboard-market-maker"
+    GITHUB_BRANCH = "main"
+    url = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}/config.yaml"
+    try:
+        r = requests.get(url, timeout=10)
+        if r.status_code == 200:
+            cfg = yaml.safe_load(r.text)
+            return [e.lower().strip() for e in cfg.get("emails_autorizados", [])]
+    except:
+        pass
+    return []
+
+def tela_login():
+    st.markdown(
+        "<div style='max-width:420px;margin:80px auto 0;'>"
+        "<div class='dashboard-card' style='padding:32px;text-align:center;'>"
+        "<div style='font-family:Inter,sans-serif;font-size:22px;font-weight:700;"
+        "background:linear-gradient(135deg,#fff,#88aaff);-webkit-background-clip:text;"
+        "background-clip:text;color:transparent;margin-bottom:8px;'>📡 MARKET MAKER</div>"
+        "<div style='color:#4a7a75;font-size:13px;letter-spacing:2px;margin-bottom:28px;'>"
+        "DASHBOARD INSTITUCIONAL · V9</div>"
+        "</div></div>",
+        unsafe_allow_html=True,
+    )
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+        email_input = st.text_input(
+            "📧 Seu email:",
+            placeholder="seuemail@exemplo.com",
+            key="login_email"
+        )
+        entrar = st.button("ENTRAR", use_container_width=True)
+
+        if entrar:
+            email = email_input.lower().strip()
+            autorizados = carregar_emails_autorizados()
+            if email and email in autorizados:
+                st.session_state["email_logado"] = email
+                st.rerun()
+            elif email:
+                st.markdown(
+                    "<div class='alert-danger'>❌ Email não autorizado. Entre em contato com o administrador.</div>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    "<div class='alert-warning'>⚠ Digite seu email para continuar.</div>",
+                    unsafe_allow_html=True,
+                )
+    st.stop()
+
+# ── Verificação de acesso ──
+if "email_logado" not in st.session_state:
+    tela_login()
+
+# ── Botão de logout na sidebar ──
+with st.sidebar:
+    st.markdown(
+        f"<div style='font-size:13px;color:#4a7a75;margin-bottom:8px;'>"
+        f"✅ {st.session_state['email_logado']}</div>",
+        unsafe_allow_html=True,
+    )
+    if st.button("🚪 Sair", use_container_width=True):
+        del st.session_state["email_logado"]
+        st.rerun()
+    st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════
 # 1 · CONSTANTES
 # ══════════════════════════════════════════════════════════════════
 LAST_STALE_THRESHOLD = 0.85
