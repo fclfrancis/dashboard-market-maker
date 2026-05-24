@@ -146,6 +146,7 @@ with st.sidebar:
 # 1 · CONSTANTES
 # ══════════════════════════════════════════════════════════════════
 LAST_STALE_THRESHOLD = 0.85
+MULTIPLICADOR_FIXO   = 100          # ← fixo, não exposto ao usuário
 COLOR_CALL   = "#FF3131"
 COLOR_PUT    = "#00FF00"
 COLOR_NEON   = "#00ffe7"
@@ -226,8 +227,9 @@ def parse_json(source):
             strike_str = str(row.get("strike", raw.get("strike", "")))
             raw["_opt_type"]     = "Call" if strike_str.upper().endswith("C") else "Put"
             raw["_strike_str"]   = strike_str
-            raw["tradeTime_str"] = str(row.get("tradeTime", ""))
-            if "tradeTime" not in raw and "tradeTime" in row: raw["tradeTime"] = row["tradeTime"]
+            # Preserva tradeTime do raw (unix timestamp) para uso no Flow Evolution
+            if "tradeTime" not in raw and "tradeTime" in row:
+                raw["tradeTime"] = row["tradeTime"]
             records.append(raw)
     elif isinstance(data_block, list):
         for row in data_block:
@@ -235,7 +237,6 @@ def parse_json(source):
             strike_str = str(row.get("strike", raw.get("strike", "")))
             raw["_opt_type"]     = "Call" if strike_str.upper().endswith("C") else "Put"
             raw["_strike_str"]   = strike_str
-            raw["tradeTime_str"] = str(row.get("tradeTime", ""))
             records.append(raw)
 
     if not records: return None
@@ -251,6 +252,7 @@ def parse_json(source):
     df["optionType"]  = df["_opt_type"]
     for col in ["strikePrice","bidPrice","askPrice","lastPrice","volume","openInterest","delta","gamma","vega","theta"]:
         df[col] = df[col].apply(_clean_num) if col in df.columns else 0.0
+    # Converte tradeTime (unix) para datetime
     if "tradeTime" in df.columns:
         df["tradeTime"] = pd.to_numeric(df["tradeTime"], errors="coerce")
         df["tradeTime"] = pd.to_datetime(df["tradeTime"], unit="s", errors="coerce")
@@ -566,11 +568,7 @@ with st.sidebar:
         return None
 
     nomes_disponiveis=listar_arquivos_github()
-    if nomes_disponiveis:
-        st.info(f"✅ {len(nomes_disponiveis)} arquivos no GitHub.")
-        with st.expander("📄 Ver arquivos disponíveis"): st.write(nomes_disponiveis)
-    else:
-        st.warning("⚠ Nenhum JSON encontrado na pasta 'dados/' do repositório.")
+    # ← lista de arquivos NÃO exibida ao usuário (removida do visual)
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     snapshots={}
@@ -615,7 +613,7 @@ with st.sidebar:
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     min_fin=st.number_input("💰 Vol. Financeiro Mín ($)",value=0,step=10_000,format="%d")
-    multiplicador=st.number_input("Multiplicador",value=100,step=1)
+    # Multiplicador fixo em 100 — não exposto na interface
 
 # ══════════════════════════════════════════════════════════════════
 # 11 · HEADER
@@ -650,7 +648,7 @@ else: spot=_detectar_spot_pcp(df_raw) or detectar_spot(df_raw,None)
 if spot<=0:
     st.error("❌ Não foi possível detectar o Spot. Informe manualmente na sidebar."); st.stop()
 
-df=calcular_v9(df_raw,spot,s_min,s_max,min_fin=float(min_fin),mult=float(multiplicador))
+df=calcular_v9(df_raw,spot,s_min,s_max,min_fin=float(min_fin),mult=float(MULTIPLICADOR_FIXO))
 if df is None or df.empty:
     st.warning(f"⚠ Nenhum dado no range {_fmt_strike(s_min)} — {_fmt_strike(s_max)} com os filtros atuais."); st.stop()
 
@@ -707,7 +705,7 @@ with col_left:
                 for e in pcp_res["tabela"]:
                     is_atm=e["K"]==pcp_res["strike_atm"]; row_style="background:rgba(240,192,64,0.08);" if is_atm else ""; star=" ★" if is_atm else ""
                     rows_pcp+=(f"<tr style='{row_style}'><td class='text-gold'>{_fmt_strike(e['K'])}{star}</td><td style='color:#ccddf8;'>{e['c_bid']:.2f}</td><td style='color:#ccddf8;'>{e['c_ask']:.2f}</td><td style='color:#f0c040;font-weight:bold;'>{e['delta_call']:.4f}</td><td style='color:#ccddf8;'>{e['p_bid']:.2f}</td><td style='color:#ccddf8;'>{e['p_ask']:.2f}</td><td style='color:#0ff;font-weight:bold;'>{e['F']:.2f}</td></tr>")
-                st.markdown(f"<div style='overflow-x:auto;'><table class='hud-table'><thead><tr><th>STRIKE</th><th>C BID</th><th>C ASK</th><th>Δ CALL</th><th>P BID</th><th>P ASK</th><th>F IMP.</th></tr></thead><tbody>{rows_pcp}</tbody></table><div style='font-size:13px;color:#4a7a75;margin-top:4px;'>★ ATM selecionado</div></div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='overflow-x:auto;'><table class='hud-table'><thead><tr><th>STRIKE</th><th>C BID</th><th>C ASK</th><th>Δ CALL</th><th>P BID</th><th>P ASK</th><th>F IMP.</th></tr></thead><tbody>{rows_pcp}</tbody></table><div style='font-size:11px;color:#4a7a75;margin-top:4px;'>★ ATM selecionado</div></div>", unsafe_allow_html=True)
 
     k1,k2=st.columns(2)
     k1.markdown(kpi("SENTIMENTO",sent_label,sent_cls,f"Net Δ {fmt_M(net_delta)}"), unsafe_allow_html=True)
@@ -803,10 +801,6 @@ with col_right:
     fig_press=build_pressure_chart(df,spot)
     st.plotly_chart(fig_press,use_container_width=True)
 
-    # ══════════════════════════════════════════════════════════════
-    # MOMENTUM REAL — Vol/OI por Strike (urgência do MM)
-    # Dentro do with col_right — após o Triple Pressure Map
-    # ══════════════════════════════════════════════════════════════
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     section("MOMENTUM REAL — VOL/OI  (urgência do fluxo por strike)")
 
@@ -938,100 +932,191 @@ if not res_intel["whales"].empty:
         else: st.caption("Sem anomalias.")
 
 # ══════════════════════════════════════════════════════════════════
-# 17 · FLOW EVOLUTION
+# 17 · FLOW EVOLUTION  ←  CORRIGIDO: usa raw.tradeTime (unix)
 # ══════════════════════════════════════════════════════════════════
-import re as _re
-from datetime import datetime as _dt, date as _date
-
-def _parse_tradetime_str(tt_str):
-    if not tt_str: return None
-    tt_str=str(tt_str).strip()
-    m=_re.match(r'^(\d{1,2}):(\d{2})\s+CT$',tt_str)
-    if not m: return None
-    h_ct,mn=int(m.group(1)),int(m.group(2)); h_brt=(h_ct+2)%24; today=_date.today()
-    return _dt(today.year,today.month,today.day,h_brt,mn)
-
 def _build_temporal_df(df_raw, spot, s_min, s_max, mult):
-    rows=[]
-    for _,row in df_raw.iterrows():
-        tt_str=str(row.get("tradeTime_str","")); dt=_parse_tradetime_str(tt_str)
-        if dt is None: continue
-        vol=float(row.get("volume",0) or 0)
-        if vol<=0: continue
-        sk=float(row.get("strikePrice",0) or 0)
-        if not(s_min<=sk<=s_max): continue
-        opt=row.get("optionType","Call"); delta=float(row.get("delta",0) or 0); gamma=float(row.get("gamma",0) or 0)
-        bid=float(row.get("bidPrice",0) or 0); ask=float(row.get("askPrice",0) or 0); last=float(row.get("lastPrice",0) or 0)
-        bid_ask_ok=bid>0 and ask>0; mid_price=(bid+ask)/2 if bid_ask_ok else last
-        last_ok=bid_ask_ok and last>0 and(last>=bid*LAST_STALE_THRESHOLD)
-        direction=(1 if last>=mid_price else -1) if last_ok else 0
-        opt_sign=1 if opt=="Call" else -1; greeks_ok=not(delta==0 and gamma==0 and sk!=spot)
-        d_flow=delta*vol*mult*spot*direction
-        g_flow=gamma*vol*mult*(spot**2)*opt_sign*direction if greeks_ok and direction!=0 else 0.0
-        hiro=-opt_sign*abs(delta)*vol*mult*spot
-        rows.append(dict(dt=dt,sk=sk,opt=opt,vol=vol,d_flow=d_flow,g_flow=g_flow,hiro=hiro))
-    if not rows: return pd.DataFrame()
-    df_t=pd.DataFrame(rows).sort_values("dt").reset_index(drop=True)
-    df_t["d_flow_cum"]=df_t["d_flow"].cumsum()
-    df_t["g_flow_cum"]=df_t["g_flow"].cumsum()
-    df_t["hiro_cum"]=df_t["hiro"].cumsum()
+    """
+    Constrói DataFrame intraday usando o campo tradeTime já convertido
+    para datetime pelo parse_json (via raw.tradeTime unix timestamp).
+    Filtra apenas registros com hora definida (não NaT) e volume > 0.
+    """
+    rows = []
+    for _, row in df_raw.iterrows():
+        # tradeTime já foi convertido de unix para datetime em parse_json
+        dt = row.get("tradeTime", pd.NaT)
+        if pd.isna(dt): continue
+
+        vol   = float(row.get("volume", 0) or 0)
+        if vol <= 0: continue
+
+        sk  = float(row.get("strikePrice", 0) or 0)
+        if not (s_min <= sk <= s_max): continue
+
+        opt   = row.get("optionType", "Call")
+        delta = float(row.get("delta",  0) or 0)
+        gamma = float(row.get("gamma",  0) or 0)
+        bid   = float(row.get("bidPrice", 0) or 0)
+        ask   = float(row.get("askPrice", 0) or 0)
+        last  = float(row.get("lastPrice", 0) or 0)
+
+        bid_ask_ok = bid > 0 and ask > 0
+        mid_price  = (bid + ask) / 2 if bid_ask_ok else last
+        last_ok    = bid_ask_ok and last > 0 and (last >= bid * LAST_STALE_THRESHOLD)
+        direction  = (1 if last >= mid_price else -1) if last_ok else 0
+
+        opt_sign   = 1 if opt == "Call" else -1
+        greeks_ok  = not (delta == 0 and gamma == 0 and sk != spot)
+
+        d_flow = delta * vol * mult * spot * direction
+        g_flow = (gamma * vol * mult * (spot ** 2) * opt_sign * direction
+                  if greeks_ok and direction != 0 else 0.0)
+        hiro   = -opt_sign * abs(delta) * vol * mult * spot
+
+        rows.append(dict(dt=dt, sk=sk, opt=opt, vol=vol,
+                         d_flow=d_flow, g_flow=g_flow, hiro=hiro))
+
+    if not rows:
+        return pd.DataFrame()
+
+    df_t = pd.DataFrame(rows).sort_values("dt").reset_index(drop=True)
+    df_t["d_flow_cum"] = df_t["d_flow"].cumsum()
+    df_t["g_flow_cum"] = df_t["g_flow"].cumsum()
+    df_t["hiro_cum"]   = df_t["hiro"].cumsum()
     return df_t
+
 
 st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
 section("FLOW EVOLUTION — HIRO · DELTA FLOW · GAMMA FLOW")
-df_temporal=_build_temporal_df(df_raw,spot,s_min,s_max,float(multiplicador))
+df_temporal = _build_temporal_df(df_raw, spot, s_min, s_max, float(MULTIPLICADOR_FIXO))
 
 if df_temporal.empty:
-    st.markdown(alert_box("⚠ Sem dados temporais intraday. Os arquivos não contêm timestamps 'HH:MM CT'.","warning"), unsafe_allow_html=True)
+    st.markdown(alert_box(
+        "⚠ Sem dados temporais intraday. Nenhum registro com tradeTime válido e volume > 0 no range selecionado.",
+        "warning"), unsafe_allow_html=True)
 else:
-    n_with_time=len(df_temporal); t_min_str=df_temporal["dt"].min().strftime("%H:%M"); t_max_str=df_temporal["dt"].max().strftime("%H:%M")
-    st.markdown(f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;color:#8a9bb5;margin-bottom:8px;'>◈ {n_with_time} trades com hora do dia &nbsp;|&nbsp; janela: {t_min_str} → {t_max_str} BRT</div>", unsafe_allow_html=True)
-    hiro_final=df_temporal["hiro_cum"].iloc[-1]; delta_final=df_temporal["d_flow_cum"].iloc[-1]
-    is_absorbing=(hiro_final>0)and(delta_final<0)
-    lookback=max(10,len(df_temporal)//5); hiro_recente=df_temporal["hiro"].tail(lookback).sum()
-    hiro_medio=df_temporal["hiro"].abs().mean(); intensidade=abs(hiro_recente)/(hiro_medio*lookback) if hiro_medio>0 else 0
-    sent_label_h="COMPRADOR 🟢" if hiro_recente>0 else "VENDEDOR 🔴"
-    int_label="FORTE 🔥" if intensidade>1.8 else "FRACO 😴" if intensidade<0.8 else "NORMAL"
-    ta1,ta2,ta3,ta4=st.columns(4)
-    ta1.markdown(kpi("HIRO ACUM.",fmt_M(hiro_final),"bull" if hiro_final>0 else "bear","MM compra futuros" if hiro_final>0 else "MM vende futuros"), unsafe_allow_html=True)
-    ta2.markdown(kpi("DEX ACUM.",fmt_M(delta_final),"bull" if delta_final>0 else "bear","Delta flow cumulativo"), unsafe_allow_html=True)
-    ta3.markdown(kpi("SENTIMENTO REC.",sent_label_h,"",f"Intens.: {intensidade:.2f}x — {int_label}"), unsafe_allow_html=True)
-    ta4.markdown(kpi("ABSORÇÃO","DETECTADA ⚠" if is_absorbing else "NÃO","bear" if is_absorbing else "neutral","HIRO+ com DEX−" if is_absorbing else "Fluxo coerente"), unsafe_allow_html=True)
+    n_with_time = len(df_temporal)
+    t_min_str   = df_temporal["dt"].min().strftime("%H:%M")
+    t_max_str   = df_temporal["dt"].max().strftime("%H:%M")
+    st.markdown(
+        f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;color:#8a9bb5;"
+        f"margin-bottom:8px;'>◈ {n_with_time} trades com timestamp &nbsp;|&nbsp; "
+        f"janela: {t_min_str} → {t_max_str}</div>",
+        unsafe_allow_html=True)
 
-    def _flow_fig(df_t,col_cum,title,color_pos,color_neg,extras=None):
-        t=df_t["dt"]; v=df_t[col_cum]
-        fig=go.Figure()
-        fig.add_trace(go.Scatter(x=t,y=v,mode="lines",line=dict(color=color_pos,width=1.8),name=title,showlegend=False))
-        fig.add_trace(go.Scatter(x=t,y=v.clip(lower=0),fill="tozeroy",fillcolor=f"rgba({int(color_pos[1:3],16)},{int(color_pos[3:5],16)},{int(color_pos[5:7],16)},0.12)",line=dict(width=0),showlegend=False,hoverinfo="skip"))
-        fig.add_trace(go.Scatter(x=t,y=v.clip(upper=0),fill="tozeroy",fillcolor=f"rgba({int(color_neg[1:3],16)},{int(color_neg[3:5],16)},{int(color_neg[5:7],16)},0.12)",line=dict(width=0),showlegend=False,hoverinfo="skip"))
-        for ec_col,ec_color,ec_name in(extras or []):
-            fig.add_trace(go.Scatter(x=t,y=df_t[ec_col],mode="lines",line=dict(color=ec_color,width=1.0,dash="dot"),name=ec_name,opacity=0.65))
-        fig.add_hline(y=0,line_color=COLOR_NEON,line_width=0.8,line_dash="dash",opacity=0.35)
-        vals=v.values
-        for i in range(len(vals)-1):
-            if vals[i]!=0 and vals[i+1]!=0:
-                if(vals[i]>0)!=(vals[i+1]>0): fig.add_vline(x=t.iloc[i],line_color=COLOR_GOLD,line_width=0.8,line_dash="dot",opacity=0.5)
-        fig.update_layout(height=240,template="plotly_dark",paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,12,20,0.6)",
-            margin=dict(t=32,b=20,l=10,r=10),title=dict(text=f"◈ {title}",font=dict(color=COLOR_NEON,size=13,family="JetBrains Mono"),x=0),
-            font=dict(family="JetBrains Mono",size=13,color="#ccddf8"),
-            xaxis=dict(showgrid=True,gridcolor="rgba(0,255,255,0.06)",tickfont=dict(size=13)),
-            yaxis=dict(showgrid=True,gridcolor="rgba(0,255,255,0.06)",zerolinecolor="rgba(0,255,255,0.3)",zerolinewidth=1,tickfont=dict(size=13)),
-            showlegend=bool(extras),legend=dict(orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1,font=dict(size=13,family="JetBrains Mono"),bgcolor="rgba(0,0,0,0)"),
+    hiro_final  = df_temporal["hiro_cum"].iloc[-1]
+    delta_final = df_temporal["d_flow_cum"].iloc[-1]
+    is_absorbing = (hiro_final > 0) and (delta_final < 0)
+
+    lookback    = max(10, len(df_temporal) // 5)
+    hiro_recente = df_temporal["hiro"].tail(lookback).sum()
+    hiro_medio   = df_temporal["hiro"].abs().mean()
+    intensidade  = abs(hiro_recente) / (hiro_medio * lookback) if hiro_medio > 0 else 0
+    sent_label_h = "COMPRADOR 🟢" if hiro_recente > 0 else "VENDEDOR 🔴"
+    int_label    = "FORTE 🔥" if intensidade > 1.8 else "FRACO 😴" if intensidade < 0.8 else "NORMAL"
+
+    ta1, ta2, ta3, ta4 = st.columns(4)
+    ta1.markdown(kpi("HIRO ACUM.", fmt_M(hiro_final),
+                     "bull" if hiro_final > 0 else "bear",
+                     "MM compra futuros" if hiro_final > 0 else "MM vende futuros"), unsafe_allow_html=True)
+    ta2.markdown(kpi("DEX ACUM.", fmt_M(delta_final),
+                     "bull" if delta_final > 0 else "bear",
+                     "Delta flow cumulativo"), unsafe_allow_html=True)
+    ta3.markdown(kpi("SENTIMENTO REC.", sent_label_h, "",
+                     f"Intens.: {intensidade:.2f}x — {int_label}"), unsafe_allow_html=True)
+    ta4.markdown(kpi("ABSORÇÃO",
+                     "DETECTADA ⚠" if is_absorbing else "NÃO",
+                     "bear" if is_absorbing else "neutral",
+                     "HIRO+ com DEX−" if is_absorbing else "Fluxo coerente"), unsafe_allow_html=True)
+
+    def _flow_fig(df_t, col_cum, title, color_pos, color_neg, extras=None):
+        t = df_t["dt"]; v = df_t[col_cum]
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=t, y=v, mode="lines",
+                                 line=dict(color=color_pos, width=1.8),
+                                 name=title, showlegend=False))
+        fig.add_trace(go.Scatter(x=t, y=v.clip(lower=0), fill="tozeroy",
+                                 fillcolor=f"rgba({int(color_pos[1:3],16)},"
+                                           f"{int(color_pos[3:5],16)},"
+                                           f"{int(color_pos[5:7],16)},0.12)",
+                                 line=dict(width=0), showlegend=False, hoverinfo="skip"))
+        fig.add_trace(go.Scatter(x=t, y=v.clip(upper=0), fill="tozeroy",
+                                 fillcolor=f"rgba({int(color_neg[1:3],16)},"
+                                           f"{int(color_neg[3:5],16)},"
+                                           f"{int(color_neg[5:7],16)},0.12)",
+                                 line=dict(width=0), showlegend=False, hoverinfo="skip"))
+        for ec_col, ec_color, ec_name in (extras or []):
+            fig.add_trace(go.Scatter(x=t, y=df_t[ec_col], mode="lines",
+                                     line=dict(color=ec_color, width=1.0, dash="dot"),
+                                     name=ec_name, opacity=0.65))
+        fig.add_hline(y=0, line_color=COLOR_NEON, line_width=0.8,
+                      line_dash="dash", opacity=0.35)
+        vals = v.values
+        for i in range(len(vals) - 1):
+            if vals[i] != 0 and vals[i + 1] != 0:
+                if (vals[i] > 0) != (vals[i + 1] > 0):
+                    fig.add_vline(x=t.iloc[i], line_color=COLOR_GOLD,
+                                  line_width=0.8, line_dash="dot", opacity=0.5)
+        fig.update_layout(
+            height=240, template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(8,12,20,0.6)",
+            margin=dict(t=32, b=20, l=10, r=10),
+            title=dict(text=f"◈ {title}",
+                       font=dict(color=COLOR_NEON, size=13, family="JetBrains Mono"), x=0),
+            font=dict(family="JetBrains Mono", size=13, color="#ccddf8"),
+            xaxis=dict(showgrid=True, gridcolor="rgba(0,255,255,0.06)",
+                       tickfont=dict(size=13)),
+            yaxis=dict(showgrid=True, gridcolor="rgba(0,255,255,0.06)",
+                       zerolinecolor="rgba(0,255,255,0.3)", zerolinewidth=1,
+                       tickfont=dict(size=13)),
+            showlegend=bool(extras),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02,
+                        xanchor="right", x=1,
+                        font=dict(size=13, family="JetBrains Mono"),
+                        bgcolor="rgba(0,0,0,0)"),
             hovermode="x unified")
         return fig
 
-    df_temporal["hiro_call_cum"]=df_temporal.apply(lambda r:r["hiro"] if r["opt"]=="Call" else 0.0,axis=1).cumsum()
-    df_temporal["hiro_put_cum"]=df_temporal.apply(lambda r:r["hiro"] if r["opt"]=="Put" else 0.0,axis=1).cumsum()
-    st.plotly_chart(_flow_fig(df_temporal,"hiro_cum","HIRO TOTAL  (+ = MM compra futuros  |  − = MM vende futuros)","#00ffe7","#ff6b35",extras=[("hiro_call_cum","#ff6b35","Calls"),("hiro_put_cum","#00FF00","Puts")]),use_container_width=True)
-    st.plotly_chart(_flow_fig(df_temporal,"d_flow_cum","DELTA FLOW ACUMULADO  (zero para BRUTO)","#00ffe7","#ff6b35"),use_container_width=True)
-    st.plotly_chart(_flow_fig(df_temporal,"g_flow_cum","GAMMA FLOW ACUMULADO  (+ Long Gamma  |  − Short Gamma)","#7b2fff","#ff6b35"),use_container_width=True)
-    if is_absorbing: st.markdown(alert_box("🚨 ABSORÇÃO DETECTADA — HIRO+ com Delta Flow−: institucionais segurando contra agressão vendedora.","warning"), unsafe_allow_html=True)
+    df_temporal["hiro_call_cum"] = df_temporal.apply(
+        lambda r: r["hiro"] if r["opt"] == "Call" else 0.0, axis=1).cumsum()
+    df_temporal["hiro_put_cum"] = df_temporal.apply(
+        lambda r: r["hiro"] if r["opt"] == "Put" else 0.0, axis=1).cumsum()
+
+    st.plotly_chart(_flow_fig(
+        df_temporal, "hiro_cum",
+        "HIRO TOTAL  (+ = MM compra futuros  |  − = MM vende futuros)",
+        "#00ffe7", "#ff6b35",
+        extras=[("hiro_call_cum", "#ff6b35", "Calls"),
+                ("hiro_put_cum",  "#00FF00", "Puts")]),
+        use_container_width=True)
+    st.plotly_chart(_flow_fig(
+        df_temporal, "d_flow_cum",
+        "DELTA FLOW ACUMULADO  (zero para BRUTO)",
+        "#00ffe7", "#ff6b35"),
+        use_container_width=True)
+    st.plotly_chart(_flow_fig(
+        df_temporal, "g_flow_cum",
+        "GAMMA FLOW ACUMULADO  (+ Long Gamma  |  − Short Gamma)",
+        "#7b2fff", "#ff6b35"),
+        use_container_width=True)
+
+    if is_absorbing:
+        st.markdown(alert_box(
+            "🚨 ABSORÇÃO DETECTADA — HIRO+ com Delta Flow−: "
+            "institucionais segurando contra agressão vendedora.", "warning"),
+            unsafe_allow_html=True)
+
     if not df_temporal.empty:
-        gf_by_sk=df_temporal.groupby("sk")["g_flow"].sum(); df_by_sk=df_temporal.groupby("sk")["d_flow"].sum()
+        gf_by_sk = df_temporal.groupby("sk")["g_flow"].sum()
+        df_by_sk = df_temporal.groupby("sk")["d_flow"].sum()
         if not gf_by_sk.empty and not df_by_sk.empty:
-            gf_flip=float(gf_by_sk.abs().idxmin()); df_flip=float(df_by_sk.abs().idxmin())
-            convergencia=abs(gf_flip-df_flip)/spot*100 if spot>0 else 999
-            if convergencia<0.5: st.markdown(alert_box(f"🎯 ZONA DE CONVERGÊNCIA: Gamma Flip e Delta Flip convergem em {_fmt_strike(gf_flip)} — região de alto impacto.","info"), unsafe_allow_html=True)
+            gf_flip = float(gf_by_sk.abs().idxmin())
+            df_flip = float(df_by_sk.abs().idxmin())
+            convergencia = abs(gf_flip - df_flip) / spot * 100 if spot > 0 else 999
+            if convergencia < 0.5:
+                st.markdown(alert_box(
+                    f"🎯 ZONA DE CONVERGÊNCIA: Gamma Flip e Delta Flip convergem em "
+                    f"{_fmt_strike(gf_flip)} — região de alto impacto.", "info"),
+                    unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
 # 18 · FLOW ANALYSIS — TIMES & TRADE
