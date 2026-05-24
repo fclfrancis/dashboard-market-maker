@@ -277,8 +277,10 @@ def calcular_v9(df_raw, spot, s_min, s_max, min_fin, mult=100.0):
         fin_opc=mid_price*vol*mult
         if min_fin>0 and fin_opc<min_fin: continue
         last_ok=bid_ask_ok and last>0 and (last>=bid*LAST_STALE_THRESHOLD)
+        last_only=not bid_ask_ok and last>0  # snap histórico: só lastPrice disponível
         if last_ok: direction=1 if last>=mid_price else -1; side="BUY" if direction==1 else "SELL"
         elif bid_ask_ok: direction=0; side="BRUTO_STALE"
+        elif last_only: direction=1; side="LAST_ONLY"  # taker comprou; usa lastPrice como referência
         else: direction=0; side="BRUTO_NOBID"
         greeks_ok=not(delta==0 and gamma==0 and vega==0 and sp!=spot); opt_sign=1 if opt=="Call" else -1
         d_flow=delta*vol*mult*spot*direction; dex_total=d_flow
@@ -962,7 +964,13 @@ def _build_temporal_df(df_raw, spot, s_min, s_max, mult):
         bid_ask_ok = bid > 0 and ask > 0
         mid_price  = (bid + ask) / 2 if bid_ask_ok else last
         last_ok    = bid_ask_ok and last > 0 and (last >= bid * LAST_STALE_THRESHOLD)
-        direction  = (1 if last >= mid_price else -1) if last_ok else 0
+        last_only  = not bid_ask_ok and last > 0
+        if last_ok:
+            direction = 1 if last >= mid_price else -1
+        elif last_only:
+            direction = 1  # snap historico: taker comprou, usa lastPrice
+        else:
+            direction = 0
 
         opt_sign   = 1 if opt == "Call" else -1
         greeks_ok  = not (delta == 0 and gamma == 0 and sk != spot)
@@ -1134,6 +1142,7 @@ with col_ctrl2:
 def _tt_side_html(side):
     if side=="BUY": return "<span class='tt-buy'>BUY 🟢</span>"
     if side=="SELL": return "<span class='tt-sell'>SELL 🔴</span>"
+    if side=="LAST_ONLY": return "<span style='color:#aaa;'>LAST ⬜</span>"
     return "<span class='tt-bruto'>BRUTO ⚪</span>"
 
 def _tt_mm_html(acao):
