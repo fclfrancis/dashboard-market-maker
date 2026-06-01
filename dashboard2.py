@@ -102,17 +102,21 @@ st.markdown(HUD_CSS, unsafe_allow_html=True)
 # LOGIN
 # ══════════════════════════════════════════════════════════════════
 import yaml
-
-@st.cache_data(ttl=300)
-def carregar_emails_autorizados():
-    GITHUB_USER = "fclfrancis"; GITHUB_REPO = "dashboard-market-maker"; GITHUB_BRANCH = "main"
-    url = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}/config.yaml"
+@st.cache_data(ttl=60)
+def listar_arquivos_github():
     try:
-        r = requests.get(url, timeout=10)
+        headers = {}
+        # se você adicionar um token em st.secrets, usa autenticado (5000 req/h)
+        token = st.secrets.get("GITHUB_TOKEN", None) if hasattr(st, "secrets") else None
+        if token:
+            headers["Authorization"] = f"token {token}"
+        r = requests.get(API_URL, headers=headers, timeout=10)
         if r.status_code == 200:
-            cfg = yaml.safe_load(r.text)
-            return [e.lower().strip() for e in cfg.get("emails_autorizados", [])]
-    except: pass
+            return [f["name"] for f in r.json() if f["name"].endswith(".json")]
+        else:
+            st.sidebar.error(f"GitHub API {r.status_code}: {r.json().get('message','')[:100]}")
+    except Exception as e:
+        st.sidebar.error(f"Erro listar: {e}")
     return []
 
 def tela_login():
