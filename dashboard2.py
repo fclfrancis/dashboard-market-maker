@@ -103,23 +103,16 @@ st.markdown(HUD_CSS, unsafe_allow_html=True)
 # ══════════════════════════════════════════════════════════════════
 import yaml
 @st.cache_data(ttl=300)
-    def listar_arquivos_github():
-        try:
-            headers = {}
-            try:
-                token = st.secrets["GITHUB_TOKEN"]
-                if token:
-                    headers["Authorization"] = f"token {token}"
-            except Exception:
-                pass
-            r = requests.get(API_URL, headers=headers, timeout=10)
-            if r.status_code == 200:
-                return [f["name"] for f in r.json() if f["name"].endswith(".json")]
-            else:
-                st.error(f"GitHub API {r.status_code}: {r.text[:200]}")
-        except Exception as e:
-            st.error(f"Erro listar: {e}")
-        return []
+def carregar_emails_autorizados():
+    GITHUB_USER = "fclfrancis"; GITHUB_REPO = "dashboard-market-maker"; GITHUB_BRANCH = "main"
+    url = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}/config.yaml"
+    try:
+        r = requests.get(url, timeout=10)
+        if r.status_code == 200:
+            cfg = yaml.safe_load(r.text)
+            return [e.lower().strip() for e in cfg.get("emails_autorizados", [])]
+    except: pass
+    return []
 def tela_login():
     st.markdown("<div style='max-width:420px;margin:80px auto 0;'><div class='dashboard-card' style='padding:32px;text-align:center;'><div style='font-family:Inter,sans-serif;font-size:22px;font-weight:700;background:linear-gradient(135deg,#fff,#88aaff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;'>📡 MARKET MAKER</div><div style='color:#4a7a75;font-size:13px;letter-spacing:2px;margin-bottom:28px;'>DASHBOARD INSTITUCIONAL · V9</div></div></div>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
