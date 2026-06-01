@@ -14,6 +14,7 @@ from plotly.subplots import make_subplots
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
+import yaml
 
 # ══════════════════════════════════════════════════════════════════
 # 0 · PÁGINA & CSS
@@ -99,20 +100,41 @@ hr { border-color:rgba(0,255,255,0.15) !important; }
 st.markdown(HUD_CSS, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
-# LOGIN
+# CONSTANTES GITHUB + FUNÇÕES DE CARGA (nível de módulo)
 # ══════════════════════════════════════════════════════════════════
-import yaml
+GITHUB_USER   = "fclfrancis"
+GITHUB_REPO   = "dashboard-market-maker"
+GITHUB_BRANCH = "main"
+GITHUB_PASTA  = "dados"
+API_URL  = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{GITHUB_PASTA}?ref={GITHUB_BRANCH}"
+RAW_BASE = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}/{GITHUB_PASTA}"
+
+def _gh_headers():
+    headers = {}
+    try:
+        token = st.secrets["GITHUB_TOKEN"]
+        if token:
+            headers["Authorization"] = f"token {token}"
+    except Exception:
+        pass
+    return headers
+
+@st.cache_data(ttl=300)
+def carregar_emails_autorizados():
+    url = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}/config.yaml"
+    try:
+        r = requests.get(url, timeout=10)
+        if r.status_code == 200:
+            cfg = yaml.safe_load(r.text)
+            return [e.lower().strip() for e in cfg.get("emails_autorizados", [])]
+    except Exception:
+        pass
+    return []
+
 @st.cache_data(ttl=300)
 def listar_arquivos_github():
     try:
-        headers = {}
-        try:
-            token = st.secrets["GITHUB_TOKEN"]
-            if token:
-                headers["Authorization"] = f"token {token}"
-        except Exception:
-            pass
-        r = requests.get(API_URL, headers=headers, timeout=10)
+        r = requests.get(API_URL, headers=_gh_headers(), timeout=10)
         if r.status_code == 200:
             return [f["name"] for f in r.json() if f["name"].endswith(".json")]
         else:
@@ -120,6 +142,21 @@ def listar_arquivos_github():
     except Exception as e:
         st.error(f"Erro listar: {e}")
     return []
+
+@st.cache_data(ttl=60)
+def baixar_json_github(nome_arquivo):
+    url = f"{RAW_BASE}/{nome_arquivo}"
+    try:
+        r = requests.get(url, headers=_gh_headers(), timeout=10)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return None
+
+# ══════════════════════════════════════════════════════════════════
+# LOGIN
+# ══════════════════════════════════════════════════════════════════
 def tela_login():
     st.markdown("<div style='max-width:420px;margin:80px auto 0;'><div class='dashboard-card' style='padding:32px;text-align:center;'><div style='font-family:Inter,sans-serif;font-size:22px;font-weight:700;background:linear-gradient(135deg,#fff,#88aaff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;'>📡 MARKET MAKER</div><div style='color:#4a7a75;font-size:13px;letter-spacing:2px;margin-bottom:28px;'>DASHBOARD INSTITUCIONAL · V9</div></div></div>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -232,7 +269,6 @@ def parse_json(source):
             strike_str = str(row.get("strike", raw.get("strike", "")))
             raw["_opt_type"]     = "Call" if strike_str.upper().endswith("C") else "Put"
             raw["_strike_str"]   = strike_str
-            # Preserva tradeTime do raw (unix timestamp) para uso no Flow Evolution
             if "tradeTime" not in raw and "tradeTime" in row:
                 raw["tradeTime"] = row["tradeTime"]
             records.append(raw)
@@ -257,7 +293,6 @@ def parse_json(source):
     df["optionType"]  = df["_opt_type"]
     for col in ["strikePrice","bidPrice","askPrice","lastPrice","volume","openInterest","delta","gamma","vega","theta"]:
         df[col] = df[col].apply(_clean_num) if col in df.columns else 0.0
-    # Converte tradeTime (unix) para datetime
     if "tradeTime" in df.columns:
         df["tradeTime"] = pd.to_numeric(df["tradeTime"], errors="coerce")
         df["tradeTime"] = pd.to_datetime(df["tradeTime"], unit="s", errors="coerce")
@@ -282,10 +317,10 @@ def calcular_v9(df_raw, spot, s_min, s_max, min_fin, mult=100.0):
         fin_opc=mid_price*vol*mult
         if min_fin>0 and fin_opc<min_fin: continue
         last_ok=bid_ask_ok and last>0 and (last>=bid*LAST_STALE_THRESHOLD)
-        last_only=not bid_ask_ok and last>0  # snap histórico: só lastPrice disponível
+        last_only=not bid_ask_ok and last>0
         if last_ok: direction=1 if last>=mid_price else -1; side="BUY" if direction==1 else "SELL"
         elif bid_ask_ok: direction=0; side="BRUTO_STALE"
-        elif last_only: direction=1; side="LAST_ONLY"  # taker comprou; usa lastPrice como referência
+        elif last_only: direction=1; side="LAST_ONLY"
         else: direction=0; side="BRUTO_NOBID"
         greeks_ok=not(delta==0 and gamma==0 and vega==0 and sp!=spot); opt_sign=1 if opt=="Call" else -1
         d_flow=delta*vol*mult*spot*direction; dex_total=d_flow
@@ -553,29 +588,7 @@ def build_pressure_chart(df, spot):
 with st.sidebar:
     st.markdown("<div style='font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:#0ff;letter-spacing:2px;padding:10px 0 16px;text-shadow:0 0 6px #0ff;'>⚙ SETUP OPERACIONAL</div>", unsafe_allow_html=True)
 
-    GITHUB_USER="fclfrancis"; GITHUB_REPO="dashboard-market-maker"; GITHUB_BRANCH="main"; GITHUB_PASTA="dados"
-    API_URL=f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{GITHUB_PASTA}?ref={GITHUB_BRANCH}"
-    RAW_BASE=f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}/{GITHUB_PASTA}"
-
-    @st.cache_data(ttl=60)
-    def listar_arquivos_github():
-        try:
-            r=requests.get(API_URL,timeout=10)
-            if r.status_code==200: return [f["name"] for f in r.json() if f["name"].endswith(".json")]
-        except: pass
-        return []
-
-    @st.cache_data(ttl=60)
-    def baixar_json_github(nome_arquivo):
-        url=f"{RAW_BASE}/{nome_arquivo}"
-        try:
-            r=requests.get(url,timeout=10)
-            if r.status_code==200: return r.json()
-        except: pass
-        return None
-
     nomes_disponiveis=listar_arquivos_github()
-    # ← lista de arquivos NÃO exibida ao usuário (removida do visual)
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     snapshots={}
@@ -620,7 +633,6 @@ with st.sidebar:
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     min_fin=st.number_input("💰 Vol. Financeiro Mín ($)",value=0,step=10_000,format="%d")
-    # Multiplicador fixo em 100 — não exposto na interface
 
 # ══════════════════════════════════════════════════════════════════
 # 11 · HEADER
@@ -939,33 +951,23 @@ if not res_intel["whales"].empty:
         else: st.caption("Sem anomalias.")
 
 # ══════════════════════════════════════════════════════════════════
-# 17 · FLOW EVOLUTION  ←  CORRIGIDO: usa raw.tradeTime (unix)
+# 17 · FLOW EVOLUTION
 # ══════════════════════════════════════════════════════════════════
 def _build_temporal_df(df_raw, spot, s_min, s_max, mult):
-    """
-    Constrói DataFrame intraday usando o campo tradeTime já convertido
-    para datetime pelo parse_json (via raw.tradeTime unix timestamp).
-    Filtra apenas registros com hora definida (não NaT) e volume > 0.
-    """
     rows = []
     for _, row in df_raw.iterrows():
-        # tradeTime já foi convertido de unix para datetime em parse_json
         dt = row.get("tradeTime", pd.NaT)
         if pd.isna(dt): continue
-
         vol   = float(row.get("volume", 0) or 0)
         if vol <= 0: continue
-
         sk  = float(row.get("strikePrice", 0) or 0)
         if not (s_min <= sk <= s_max): continue
-
         opt   = row.get("optionType", "Call")
         delta = float(row.get("delta",  0) or 0)
         gamma = float(row.get("gamma",  0) or 0)
         bid   = float(row.get("bidPrice", 0) or 0)
         ask   = float(row.get("askPrice", 0) or 0)
         last  = float(row.get("lastPrice", 0) or 0)
-
         bid_ask_ok = bid > 0 and ask > 0
         mid_price  = (bid + ask) / 2 if bid_ask_ok else last
         last_ok    = bid_ask_ok and last > 0 and (last >= bid * LAST_STALE_THRESHOLD)
@@ -973,24 +975,19 @@ def _build_temporal_df(df_raw, spot, s_min, s_max, mult):
         if last_ok:
             direction = 1 if last >= mid_price else -1
         elif last_only:
-            direction = 1  # snap historico: taker comprou, usa lastPrice
+            direction = 1
         else:
             direction = 0
-
         opt_sign   = 1 if opt == "Call" else -1
         greeks_ok  = not (delta == 0 and gamma == 0 and sk != spot)
-
         d_flow = delta * vol * mult * spot * direction
         g_flow = (gamma * vol * mult * (spot ** 2) * opt_sign * direction
                   if greeks_ok and direction != 0 else 0.0)
         hiro   = -opt_sign * abs(delta) * vol * mult * spot
-
         rows.append(dict(dt=dt, sk=sk, opt=opt, vol=vol,
                          d_flow=d_flow, g_flow=g_flow, hiro=hiro))
-
     if not rows:
         return pd.DataFrame()
-
     df_t = pd.DataFrame(rows).sort_values("dt").reset_index(drop=True)
     df_t["d_flow_cum"] = df_t["d_flow"].cumsum()
     df_t["g_flow_cum"] = df_t["g_flow"].cumsum()
