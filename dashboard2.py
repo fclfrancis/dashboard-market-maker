@@ -102,23 +102,24 @@ st.markdown(HUD_CSS, unsafe_allow_html=True)
 # LOGIN
 # ══════════════════════════════════════════════════════════════════
 import yaml
-@st.cache_data(ttl=60)
-def listar_arquivos_github():
-    try:
-        headers = {}
-        # se você adicionar um token em st.secrets, usa autenticado (5000 req/h)
-        token = st.secrets.get("GITHUB_TOKEN", None) if hasattr(st, "secrets") else None
-        if token:
-            headers["Authorization"] = f"token {token}"
-        r = requests.get(API_URL, headers=headers, timeout=10)
-        if r.status_code == 200:
-            return [f["name"] for f in r.json() if f["name"].endswith(".json")]
-        else:
-            st.sidebar.error(f"GitHub API {r.status_code}: {r.json().get('message','')[:100]}")
-    except Exception as e:
-        st.sidebar.error(f"Erro listar: {e}")
-    return []
-
+@st.cache_data(ttl=300)
+    def listar_arquivos_github():
+        try:
+            headers = {}
+            try:
+                token = st.secrets["GITHUB_TOKEN"]
+                if token:
+                    headers["Authorization"] = f"token {token}"
+            except Exception:
+                pass
+            r = requests.get(API_URL, headers=headers, timeout=10)
+            if r.status_code == 200:
+                return [f["name"] for f in r.json() if f["name"].endswith(".json")]
+            else:
+                st.error(f"GitHub API {r.status_code}: {r.text[:200]}")
+        except Exception as e:
+            st.error(f"Erro listar: {e}")
+        return []
 def tela_login():
     st.markdown("<div style='max-width:420px;margin:80px auto 0;'><div class='dashboard-card' style='padding:32px;text-align:center;'><div style='font-family:Inter,sans-serif;font-size:22px;font-weight:700;background:linear-gradient(135deg,#fff,#88aaff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;'>📡 MARKET MAKER</div><div style='color:#4a7a75;font-size:13px;letter-spacing:2px;margin-bottom:28px;'>DASHBOARD INSTITUCIONAL · V9</div></div></div>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
