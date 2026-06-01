@@ -14,8 +14,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "1,177.40",
-                "askPrice": "1,372.30",
+                "bidPrice": "1,180.50",
+                "askPrice": "1,374.10",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3250,
@@ -28,8 +28,8 @@
                     "vega": 3.4012193493931e-18,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 1177.4,
-                    "askPrice": 1372.3,
+                    "bidPrice": 1180.5,
+                    "askPrice": 1374.1,
                     "tradeTime": 1780012800
                 }
             },
@@ -74,8 +74,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "928.10",
-                "askPrice": "1,121.60",
+                "bidPrice": "931.20",
+                "askPrice": "1,123.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3500,
@@ -88,8 +88,8 @@
                     "vega": 3.6697460298828e-11,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 928.1,
-                    "askPrice": 1121.6,
+                    "bidPrice": 931.2,
+                    "askPrice": 1123.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -134,8 +134,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "828.40",
-                "askPrice": "1,021.40",
+                "bidPrice": "831.50",
+                "askPrice": "1,023.20",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3600,
@@ -148,8 +148,8 @@
                     "vega": 5.9562330420858e-09,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 828.4,
-                    "askPrice": 1021.4,
+                    "bidPrice": 831.5,
+                    "askPrice": 1023.2,
                     "tradeTime": 1780012800
                 }
             },
@@ -194,8 +194,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "728.50",
-                "askPrice": "921.50",
+                "bidPrice": "731.60",
+                "askPrice": "923.20",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3700,
@@ -208,8 +208,8 @@
                     "vega": 4.7863653619341e-07,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 728.5,
-                    "askPrice": 921.5,
+                    "bidPrice": 731.6,
+                    "askPrice": 923.2,
                     "tradeTime": 1780012800
                 }
             },
@@ -254,8 +254,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "678.30",
-                "askPrice": "871.80",
+                "bidPrice": "681.40",
+                "askPrice": "873.60",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3750,
@@ -268,8 +268,8 @@
                     "vega": 3.3513658845947e-06,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 678.3,
-                    "askPrice": 871.8,
+                    "bidPrice": 681.4,
+                    "askPrice": 873.6,
                     "tradeTime": 1780012800
                 }
             },
@@ -314,8 +314,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "628.00",
-                "askPrice": "822.20",
+                "bidPrice": "631.10",
+                "askPrice": "824.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3800,
@@ -328,8 +328,8 @@
                     "vega": 2.006617932552e-05,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 628,
-                    "askPrice": 822.2,
+                    "bidPrice": 631.1,
+                    "askPrice": 824,
                     "tradeTime": 1780012800
                 }
             },
@@ -345,7 +345,7 @@
                 "optImpliedVolatility": "65.82%",
                 "impliedVolatilitySkew": "+35.07%",
                 "bidPrice": "N/A",
-                "askPrice": "7.70",
+                "askPrice": "7.60",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3800,
@@ -359,7 +359,7 @@
                     "optImpliedVolatility": 65.818176269531,
                     "impliedVolatilitySkew": 0.35071847438812,
                     "bidPrice": 0,
-                    "askPrice": 7.7,
+                    "askPrice": 7.6,
                     "tradeTime": 1780012800
                 }
             },
@@ -374,8 +374,8 @@
                 "vega": "0.0005",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "527.20",
-                "askPrice": "723.30",
+                "bidPrice": "530.30",
+                "askPrice": "725.10",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 3900,
@@ -388,8 +388,8 @@
                     "vega": 0.00046022773198088,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 527.2,
-                    "askPrice": 723.3,
+                    "bidPrice": 530.3,
+                    "askPrice": 725.1,
                     "tradeTime": 1780012800
                 }
             },
@@ -434,8 +434,8 @@
                 "vega": "0.0060",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "425.80",
-                "askPrice": "625.30",
+                "bidPrice": "429.00",
+                "askPrice": "627.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4000,
@@ -448,8 +448,8 @@
                     "vega": 0.0060296313900756,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 425.8,
-                    "askPrice": 625.3,
+                    "bidPrice": 429,
+                    "askPrice": 627,
                     "tradeTime": 1780012800
                 }
             },
@@ -494,8 +494,8 @@
                 "vega": "0.0179",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "374.70",
-                "askPrice": "576.80",
+                "bidPrice": "377.90",
+                "askPrice": "578.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4050,
@@ -508,8 +508,8 @@
                     "vega": 0.017912562628615,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 374.7,
-                    "askPrice": 576.8,
+                    "bidPrice": 377.9,
+                    "askPrice": 578.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -554,8 +554,8 @@
                 "vega": "0.0294",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "349.10",
-                "askPrice": "552.70",
+                "bidPrice": "352.30",
+                "askPrice": "554.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4075,
@@ -568,8 +568,8 @@
                     "vega": 0.029446328442836,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 349.1,
-                    "askPrice": 552.7,
+                    "bidPrice": 352.3,
+                    "askPrice": 554.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -585,7 +585,7 @@
                 "optImpliedVolatility": "46.33%",
                 "impliedVolatilitySkew": "+15.58%",
                 "bidPrice": "0.80",
-                "askPrice": "1.40",
+                "askPrice": "1.30",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4075,
@@ -599,7 +599,7 @@
                     "optImpliedVolatility": 46.329803466797,
                     "impliedVolatilitySkew": 0.15583474636078,
                     "bidPrice": 0.8,
-                    "askPrice": 1.4,
+                    "askPrice": 1.3,
                     "tradeTime": 1780012800
                 }
             },
@@ -614,8 +614,8 @@
                 "vega": "0.0469",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "323.30",
-                "askPrice": "528.80",
+                "bidPrice": "326.50",
+                "askPrice": "530.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4100,
@@ -628,8 +628,8 @@
                     "vega": 0.046937634771092,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 323.3,
-                    "askPrice": 528.8,
+                    "bidPrice": 326.5,
+                    "askPrice": 530.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -644,8 +644,8 @@
                 "vega": "0.1763",
                 "optImpliedVolatility": "43.99%",
                 "impliedVolatilitySkew": "+13.24%",
-                "bidPrice": "0.90",
-                "askPrice": "1.60",
+                "bidPrice": "1.00",
+                "askPrice": "1.50",
                 "tradeTime": "01:54 CT",
                 "raw": {
                     "strike": 4100,
@@ -658,8 +658,8 @@
                     "vega": 0.17629850151887,
                     "optImpliedVolatility": 43.990936279297,
                     "impliedVolatilitySkew": 0.13244607448578,
-                    "bidPrice": 0.9,
-                    "askPrice": 1.6,
+                    "bidPrice": 1,
+                    "askPrice": 1.5,
                     "tradeTime": 1780296887
                 }
             },
@@ -674,8 +674,8 @@
                 "vega": "0.0726",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "297.60",
-                "askPrice": "504.90",
+                "bidPrice": "300.70",
+                "askPrice": "506.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4125,
@@ -688,8 +688,8 @@
                     "vega": 0.072587810533476,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 297.6,
-                    "askPrice": 504.9,
+                    "bidPrice": 300.7,
+                    "askPrice": 506.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -705,7 +705,7 @@
                 "optImpliedVolatility": "44.47%",
                 "impliedVolatilitySkew": "+13.72%",
                 "bidPrice": "1.10",
-                "askPrice": "1.80",
+                "askPrice": "1.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4125,
@@ -719,7 +719,7 @@
                     "optImpliedVolatility": 44.465942382812,
                     "impliedVolatilitySkew": 0.13719613552093,
                     "bidPrice": 1.1,
-                    "askPrice": 1.8,
+                    "askPrice": 1.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -734,8 +734,8 @@
                 "vega": "0.1090",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "272.60",
-                "askPrice": "480.30",
+                "bidPrice": "275.80",
+                "askPrice": "482.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4150,
@@ -748,8 +748,8 @@
                     "vega": 0.10896557373002,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 272.6,
-                    "askPrice": 480.3,
+                    "bidPrice": 275.8,
+                    "askPrice": 482,
                     "tradeTime": 1780012800
                 }
             },
@@ -794,8 +794,8 @@
                 "vega": "0.1589",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "247.80",
-                "askPrice": "455.70",
+                "bidPrice": "250.80",
+                "askPrice": "457.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4175,
@@ -808,8 +808,8 @@
                     "vega": 0.15886334218148,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 247.8,
-                    "askPrice": 455.7,
+                    "bidPrice": 250.8,
+                    "askPrice": 457.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -825,7 +825,7 @@
                 "optImpliedVolatility": "39.54%",
                 "impliedVolatilitySkew": "+8.79%",
                 "bidPrice": "1.70",
-                "askPrice": "2.20",
+                "askPrice": "2.30",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4175,
@@ -839,7 +839,7 @@
                     "optImpliedVolatility": 39.541320800781,
                     "impliedVolatilitySkew": 0.087949919700623,
                     "bidPrice": 1.7,
-                    "askPrice": 2.2,
+                    "askPrice": 2.3,
                     "tradeTime": 1780012800
                 }
             },
@@ -854,8 +854,8 @@
                 "vega": "0.2251",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "222.90",
-                "askPrice": "431.20",
+                "bidPrice": "226.00",
+                "askPrice": "432.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4200,
@@ -868,8 +868,8 @@
                     "vega": 0.22505446140501,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 222.9,
-                    "askPrice": 431.2,
+                    "bidPrice": 226,
+                    "askPrice": 432.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -885,7 +885,7 @@
                 "optImpliedVolatility": "38.09%",
                 "impliedVolatilitySkew": "+7.35%",
                 "bidPrice": "2.00",
-                "askPrice": "2.60",
+                "askPrice": "2.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4200,
@@ -899,7 +899,7 @@
                     "optImpliedVolatility": 38.093795776367,
                     "impliedVolatilitySkew": 0.073474669456482,
                     "bidPrice": 2,
-                    "askPrice": 2.6,
+                    "askPrice": 2.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -914,8 +914,8 @@
                 "vega": "1.4550",
                 "optImpliedVolatility": "98.41%",
                 "impliedVolatilitySkew": "+67.66%",
-                "bidPrice": "198.20",
-                "askPrice": "406.80",
+                "bidPrice": "201.30",
+                "askPrice": "408.60",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4225,
@@ -928,8 +928,8 @@
                     "vega": 1.4550278265294,
                     "optImpliedVolatility": 98.408060073853,
                     "impliedVolatilitySkew": 0.67661731243134,
-                    "bidPrice": 198.2,
-                    "askPrice": 406.8,
+                    "bidPrice": 201.3,
+                    "askPrice": 408.6,
                     "tradeTime": 1780012800
                 }
             },
@@ -945,7 +945,7 @@
                 "optImpliedVolatility": "37.79%",
                 "impliedVolatilitySkew": "+7.05%",
                 "bidPrice": "2.50",
-                "askPrice": "3.10",
+                "askPrice": "3.20",
                 "tradeTime": "17:24 CT",
                 "raw": {
                     "strike": 4225,
@@ -959,7 +959,7 @@
                     "optImpliedVolatility": 37.791404724121,
                     "impliedVolatilitySkew": 0.070450758934021,
                     "bidPrice": 2.5,
-                    "askPrice": 3.1,
+                    "askPrice": 3.2,
                     "tradeTime": 1780266250
                 }
             },
@@ -974,8 +974,8 @@
                 "vega": "1.4870",
                 "optImpliedVolatility": "93.99%",
                 "impliedVolatilitySkew": "+63.24%",
-                "bidPrice": "173.60",
-                "askPrice": "382.60",
+                "bidPrice": "278.90",
+                "askPrice": "282.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4250,
@@ -988,8 +988,8 @@
                     "vega": 1.4869801596916,
                     "optImpliedVolatility": 93.98811340332,
                     "impliedVolatilitySkew": 0.63241784572601,
-                    "bidPrice": 173.6,
-                    "askPrice": 382.6,
+                    "bidPrice": 278.9,
+                    "askPrice": 282.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -1034,8 +1034,8 @@
                 "vega": "1.5211",
                 "optImpliedVolatility": "89.65%",
                 "impliedVolatilitySkew": "+58.90%",
-                "bidPrice": "149.20",
-                "askPrice": "358.60",
+                "bidPrice": "254.80",
+                "askPrice": "258.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4275,
@@ -1048,8 +1048,8 @@
                     "vega": 1.5211332117248,
                     "optImpliedVolatility": 89.645309448242,
                     "impliedVolatilitySkew": 0.58898980617523,
-                    "bidPrice": 149.2,
-                    "askPrice": 358.6,
+                    "bidPrice": 254.8,
+                    "askPrice": 258.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -1064,7 +1064,7 @@
                 "vega": "0.4658",
                 "optImpliedVolatility": "33.13%",
                 "impliedVolatilitySkew": "+2.39%",
-                "bidPrice": "3.90",
+                "bidPrice": "3.80",
                 "askPrice": "4.60",
                 "tradeTime": "05/29/26",
                 "raw": {
@@ -1078,7 +1078,7 @@
                     "vega": 0.4658155047779,
                     "optImpliedVolatility": 33.13346862793,
                     "impliedVolatilitySkew": 0.023871397972107,
-                    "bidPrice": 3.9,
+                    "bidPrice": 3.8,
                     "askPrice": 4.6,
                     "tradeTime": 1780012800
                 }
@@ -1094,8 +1094,8 @@
                 "vega": "1.5570",
                 "optImpliedVolatility": "85.30%",
                 "impliedVolatilitySkew": "+54.55%",
-                "bidPrice": "221.90",
-                "askPrice": "242.90",
+                "bidPrice": "230.80",
+                "askPrice": "234.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4300,
@@ -1108,8 +1108,8 @@
                     "vega": 1.5570150048588,
                     "optImpliedVolatility": 85.298357009888,
                     "impliedVolatilitySkew": 0.54552028179169,
-                    "bidPrice": 221.9,
-                    "askPrice": 242.9,
+                    "bidPrice": 230.8,
+                    "askPrice": 234.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -1124,7 +1124,7 @@
                 "vega": "0.5662",
                 "optImpliedVolatility": "32.10%",
                 "impliedVolatilitySkew": "+1.36%",
-                "bidPrice": "4.90",
+                "bidPrice": "4.80",
                 "askPrice": "5.70",
                 "tradeTime": "21:30 CT",
                 "raw": {
@@ -1138,7 +1138,7 @@
                     "vega": 0.56617050807638,
                     "optImpliedVolatility": 32.104377746582,
                     "impliedVolatilitySkew": 0.01358048915863,
-                    "bidPrice": 4.9,
+                    "bidPrice": 4.8,
                     "askPrice": 5.7,
                     "tradeTime": 1780281028
                 }
@@ -1154,8 +1154,8 @@
                 "vega": "1.5949",
                 "optImpliedVolatility": "81.00%",
                 "impliedVolatilitySkew": "+50.25%",
-                "bidPrice": "199.10",
-                "askPrice": "219.60",
+                "bidPrice": "207.20",
+                "askPrice": "210.80",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4325,
@@ -1168,8 +1168,8 @@
                     "vega": 1.5949297635591,
                     "optImpliedVolatility": 80.995788574219,
                     "impliedVolatilitySkew": 0.502494597435,
-                    "bidPrice": 199.1,
-                    "askPrice": 219.6,
+                    "bidPrice": 207.2,
+                    "askPrice": 210.8,
                     "tradeTime": 1780012800
                 }
             },
@@ -1184,8 +1184,8 @@
                 "vega": "0.6395",
                 "optImpliedVolatility": "30.05%",
                 "impliedVolatilitySkew": "-0.69%",
-                "bidPrice": "6.30",
-                "askPrice": "7.10",
+                "bidPrice": "6.20",
+                "askPrice": "7.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4325,
@@ -1198,8 +1198,8 @@
                     "vega": 0.63950075077523,
                     "optImpliedVolatility": 30.053596496582,
                     "impliedVolatilitySkew": -0.0069273233413696,
-                    "bidPrice": 6.3,
-                    "askPrice": 7.1,
+                    "bidPrice": 6.2,
+                    "askPrice": 7,
                     "tradeTime": 1780012800
                 }
             },
@@ -1214,8 +1214,8 @@
                 "vega": "1.6347",
                 "optImpliedVolatility": "76.72%",
                 "impliedVolatilitySkew": "+45.97%",
-                "bidPrice": "175.40",
-                "askPrice": "196.50",
+                "bidPrice": "184.10",
+                "askPrice": "187.60",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4350,
@@ -1228,8 +1228,8 @@
                     "vega": 1.6346567422548,
                     "optImpliedVolatility": 76.716804504395,
                     "impliedVolatilitySkew": 0.45970475673676,
-                    "bidPrice": 175.4,
-                    "askPrice": 196.5,
+                    "bidPrice": 184.1,
+                    "askPrice": 187.6,
                     "tradeTime": 1780012800
                 }
             },
@@ -1244,8 +1244,8 @@
                 "vega": "0.8058",
                 "optImpliedVolatility": "29.66%",
                 "impliedVolatilitySkew": "-1.09%",
-                "bidPrice": "8.30",
-                "askPrice": "9.00",
+                "bidPrice": "8.10",
+                "askPrice": "8.90",
                 "tradeTime": "20:25 CT",
                 "raw": {
                     "strike": 4350,
@@ -1258,8 +1258,8 @@
                     "vega": 0.80577485942296,
                     "optImpliedVolatility": 29.657154083252,
                     "impliedVolatilitySkew": -0.01089174747467,
-                    "bidPrice": 8.3,
-                    "askPrice": 9,
+                    "bidPrice": 8.1,
+                    "askPrice": 8.9,
                     "tradeTime": 1780277111
                 }
             },
@@ -1274,8 +1274,8 @@
                 "vega": "1.6764",
                 "optImpliedVolatility": "72.56%",
                 "impliedVolatilitySkew": "+41.81%",
-                "bidPrice": "152.80",
-                "askPrice": "173.70",
+                "bidPrice": "161.50",
+                "askPrice": "165.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4375,
@@ -1288,8 +1288,8 @@
                     "vega": 1.6764116143038,
                     "optImpliedVolatility": 72.557210922241,
                     "impliedVolatilitySkew": 0.41810882091522,
-                    "bidPrice": 152.8,
-                    "askPrice": 173.7,
+                    "bidPrice": 161.5,
+                    "askPrice": 165,
                     "tradeTime": 1780012800
                 }
             },
@@ -1304,8 +1304,8 @@
                 "vega": "0.9279",
                 "optImpliedVolatility": "27.83%",
                 "impliedVolatilitySkew": "-2.92%",
-                "bidPrice": "10.60",
-                "askPrice": "11.80",
+                "bidPrice": "10.40",
+                "askPrice": "11.30",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4375,
@@ -1318,8 +1318,8 @@
                     "vega": 0.92788706023755,
                     "optImpliedVolatility": 27.829933166504,
                     "impliedVolatilitySkew": -0.029163956642151,
-                    "bidPrice": 10.6,
-                    "askPrice": 11.8,
+                    "bidPrice": 10.4,
+                    "askPrice": 11.3,
                     "tradeTime": 1780012800
                 }
             },
@@ -1334,8 +1334,8 @@
                 "vega": "1.7194",
                 "optImpliedVolatility": "68.48%",
                 "impliedVolatilitySkew": "+37.73%",
-                "bidPrice": "131.40",
-                "askPrice": "151.70",
+                "bidPrice": "139.80",
+                "askPrice": "143.20",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4400,
@@ -1348,8 +1348,8 @@
                     "vega": 1.7193829477531,
                     "optImpliedVolatility": 68.48108291626,
                     "impliedVolatilitySkew": 0.37734754085541,
-                    "bidPrice": 131.4,
-                    "askPrice": 151.7,
+                    "bidPrice": 139.8,
+                    "askPrice": 143.2,
                     "tradeTime": 1780012800
                 }
             },
@@ -1364,8 +1364,8 @@
                 "vega": "1.2275",
                 "optImpliedVolatility": "29.94%",
                 "impliedVolatilitySkew": "-0.81%",
-                "bidPrice": "13.80",
-                "askPrice": "15.20",
+                "bidPrice": "13.60",
+                "askPrice": "14.70",
                 "tradeTime": "03:49 CT",
                 "raw": {
                     "strike": 4400,
@@ -1378,8 +1378,8 @@
                     "vega": 1.2275469706424,
                     "optImpliedVolatility": 29.940853118896,
                     "impliedVolatilitySkew": -0.0080547571182251,
-                    "bidPrice": 13.8,
-                    "askPrice": 15.2,
+                    "bidPrice": 13.6,
+                    "askPrice": 14.7,
                     "tradeTime": 1780303774
                 }
             },
@@ -1394,8 +1394,8 @@
                 "vega": "1.7626",
                 "optImpliedVolatility": "64.51%",
                 "impliedVolatilitySkew": "+33.76%",
-                "bidPrice": "117.40",
-                "askPrice": "130.40",
+                "bidPrice": "119.10",
+                "askPrice": "122.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4425,
@@ -1408,8 +1408,8 @@
                     "vega": 1.7626022895288,
                     "optImpliedVolatility": 64.50511932373,
                     "impliedVolatilitySkew": 0.33758790493011,
-                    "bidPrice": 117.4,
-                    "askPrice": 130.4,
+                    "bidPrice": 119.1,
+                    "askPrice": 122.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -1424,8 +1424,8 @@
                 "vega": "1.3910",
                 "optImpliedVolatility": "28.56%",
                 "impliedVolatilitySkew": "-2.19%",
-                "bidPrice": "18.10",
-                "askPrice": "19.80",
+                "bidPrice": "17.70",
+                "askPrice": "19.00",
                 "tradeTime": "02:16 CT",
                 "raw": {
                     "strike": 4425,
@@ -1438,8 +1438,8 @@
                     "vega": 1.3910131892503,
                     "optImpliedVolatility": 28.558559417725,
                     "impliedVolatilitySkew": -0.021877694129944,
-                    "bidPrice": 18.1,
-                    "askPrice": 19.8,
+                    "bidPrice": 17.7,
+                    "askPrice": 19,
                     "tradeTime": 1780298202
                 }
             },
@@ -1454,8 +1454,8 @@
                 "vega": "1.8046",
                 "optImpliedVolatility": "60.75%",
                 "impliedVolatilitySkew": "+30.00%",
-                "bidPrice": "92.40",
-                "askPrice": "110.70",
+                "bidPrice": "99.80",
+                "askPrice": "102.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4450,
@@ -1468,8 +1468,8 @@
                     "vega": 1.8046454392629,
                     "optImpliedVolatility": 60.746002197266,
                     "impliedVolatilitySkew": 0.29999673366547,
-                    "bidPrice": 92.4,
-                    "askPrice": 110.7,
+                    "bidPrice": 99.8,
+                    "askPrice": 102.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -1484,8 +1484,8 @@
                 "vega": "1.5154",
                 "optImpliedVolatility": "25.41%",
                 "impliedVolatilitySkew": "-5.33%",
-                "bidPrice": "23.90",
-                "askPrice": "25.40",
+                "bidPrice": "23.30",
+                "askPrice": "24.60",
                 "tradeTime": "04:29 CT",
                 "raw": {
                     "strike": 4450,
@@ -1498,8 +1498,8 @@
                     "vega": 1.5154378572443,
                     "optImpliedVolatility": 25.413227081299,
                     "impliedVolatilitySkew": -0.053331017494202,
-                    "bidPrice": 23.9,
-                    "askPrice": 25.4,
+                    "bidPrice": 23.3,
+                    "askPrice": 24.6,
                     "tradeTime": 1780306181
                 }
             },
@@ -1514,8 +1514,8 @@
                 "vega": "1.8427",
                 "optImpliedVolatility": "57.25%",
                 "impliedVolatilitySkew": "+26.50%",
-                "bidPrice": "75.60",
-                "askPrice": "92.40",
+                "bidPrice": "82.00",
+                "askPrice": "85.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4475,
@@ -1528,8 +1528,8 @@
                     "vega": 1.8426562146818,
                     "optImpliedVolatility": 57.245359420776,
                     "impliedVolatilitySkew": 0.26499030590057,
-                    "bidPrice": 75.6,
-                    "askPrice": 92.4,
+                    "bidPrice": 82,
+                    "askPrice": 85,
                     "tradeTime": 1780012800
                 }
             },
@@ -1544,8 +1544,8 @@
                 "vega": "1.7477",
                 "optImpliedVolatility": "29.45%",
                 "impliedVolatilitySkew": "-1.30%",
-                "bidPrice": "31.10",
-                "askPrice": "33.10",
+                "bidPrice": "30.40",
+                "askPrice": "31.90",
                 "tradeTime": "02:54 CT",
                 "raw": {
                     "strike": 4475,
@@ -1558,8 +1558,8 @@
                     "vega": 1.7476880735051,
                     "optImpliedVolatility": 29.445714950562,
                     "impliedVolatilitySkew": -0.013006138801575,
-                    "bidPrice": 31.1,
-                    "askPrice": 33.1,
+                    "bidPrice": 30.4,
+                    "askPrice": 31.9,
                     "tradeTime": 1780300479
                 }
             },
@@ -1574,8 +1574,8 @@
                 "vega": "1.8662",
                 "optImpliedVolatility": "42.80%",
                 "impliedVolatilitySkew": "+12.05%",
-                "bidPrice": "65.00",
-                "askPrice": "69.20",
+                "bidPrice": "66.30",
+                "askPrice": "68.80",
                 "tradeTime": "18:12 CT",
                 "raw": {
                     "strike": 4500,
@@ -1588,8 +1588,8 @@
                     "vega": 1.8661928433926,
                     "optImpliedVolatility": 42.8000831604,
                     "impliedVolatilitySkew": 0.12053754329681,
-                    "bidPrice": 65,
-                    "askPrice": 69.2,
+                    "bidPrice": 66.3,
+                    "askPrice": 68.8,
                     "tradeTime": 1780269148
                 }
             },
@@ -1604,8 +1604,8 @@
                 "vega": "1.8455",
                 "optImpliedVolatility": "28.91%",
                 "impliedVolatilitySkew": "-1.84%",
-                "bidPrice": "40.10",
-                "askPrice": "42.50",
+                "bidPrice": "39.40",
+                "askPrice": "40.90",
                 "tradeTime": "03:08 CT",
                 "raw": {
                     "strike": 4500,
@@ -1618,8 +1618,8 @@
                     "vega": 1.8455441903122,
                     "optImpliedVolatility": 28.907241821289,
                     "impliedVolatilitySkew": -0.018390870094299,
-                    "bidPrice": 40.1,
-                    "askPrice": 42.5,
+                    "bidPrice": 39.4,
+                    "askPrice": 40.9,
                     "tradeTime": 1780301320
                 }
             },
@@ -1634,8 +1634,8 @@
                 "vega": "1.8890",
                 "optImpliedVolatility": "27.99%",
                 "impliedVolatilitySkew": "-2.76%",
-                "bidPrice": "51.00",
-                "askPrice": "53.80",
+                "bidPrice": "52.50",
+                "askPrice": "54.50",
                 "tradeTime": "02:56 CT",
                 "raw": {
                     "strike": 4525,
@@ -1648,8 +1648,8 @@
                     "vega": 1.8889828007085,
                     "optImpliedVolatility": 27.990207672119,
                     "impliedVolatilitySkew": -0.027561211585999,
-                    "bidPrice": 51,
-                    "askPrice": 53.8,
+                    "bidPrice": 52.5,
+                    "askPrice": 54.5,
                     "tradeTime": 1780300570
                 }
             },
@@ -1664,8 +1664,8 @@
                 "vega": "1.8888",
                 "optImpliedVolatility": "22.43%",
                 "impliedVolatilitySkew": "-8.32%",
-                "bidPrice": "51.20",
-                "askPrice": "53.50",
+                "bidPrice": "50.40",
+                "askPrice": "51.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4525,
@@ -1678,8 +1678,8 @@
                     "vega": 1.8888208270486,
                     "optImpliedVolatility": 22.430896759033,
                     "impliedVolatilitySkew": -0.083154320716858,
-                    "bidPrice": 51.2,
-                    "askPrice": 53.5,
+                    "bidPrice": 50.4,
+                    "askPrice": 51.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -1694,8 +1694,8 @@
                 "vega": "1.8706",
                 "optImpliedVolatility": "29.23%",
                 "impliedVolatilitySkew": "-1.51%",
-                "bidPrice": "39.60",
-                "askPrice": "41.70",
+                "bidPrice": "40.70",
+                "askPrice": "42.40",
                 "tradeTime": "01:37 CT",
                 "raw": {
                     "strike": 4550,
@@ -1708,8 +1708,8 @@
                     "vega": 1.870553813147,
                     "optImpliedVolatility": 29.233274459839,
                     "impliedVolatilitySkew": -0.015130543708801,
-                    "bidPrice": 39.6,
-                    "askPrice": 41.7,
+                    "bidPrice": 40.7,
+                    "askPrice": 42.4,
                     "tradeTime": 1780295876
                 }
             },
@@ -1724,8 +1724,8 @@
                 "vega": "1.8526",
                 "optImpliedVolatility": "22.04%",
                 "impliedVolatilitySkew": "-8.70%",
-                "bidPrice": "63.90",
-                "askPrice": "67.30",
+                "bidPrice": "63.20",
+                "askPrice": "65.10",
                 "tradeTime": "21:58 CT",
                 "raw": {
                     "strike": 4550,
@@ -1738,8 +1738,8 @@
                     "vega": 1.8526135915654,
                     "optImpliedVolatility": 22.044715881348,
                     "impliedVolatilitySkew": -0.087016129493713,
-                    "bidPrice": 63.9,
-                    "askPrice": 67.3,
+                    "bidPrice": 63.2,
+                    "askPrice": 65.1,
                     "tradeTime": 1780282700
                 }
             },
@@ -1754,8 +1754,8 @@
                 "vega": "1.8636",
                 "optImpliedVolatility": "50.83%",
                 "impliedVolatilitySkew": "+20.08%",
-                "bidPrice": "29.80",
-                "askPrice": "32.10",
+                "bidPrice": "30.80",
+                "askPrice": "32.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4575,
@@ -1768,8 +1768,8 @@
                     "vega": 1.8636102958249,
                     "optImpliedVolatility": 50.827369689941,
                     "impliedVolatilitySkew": 0.20081040859222,
-                    "bidPrice": 29.8,
-                    "askPrice": 32.1,
+                    "bidPrice": 30.8,
+                    "askPrice": 32.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -1784,8 +1784,8 @@
                 "vega": "0.6796",
                 "optImpliedVolatility": "6.91%",
                 "impliedVolatilitySkew": "-23.84%",
-                "bidPrice": "74.00",
-                "askPrice": "91.60",
+                "bidPrice": "77.70",
+                "askPrice": "80.60",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4575,
@@ -1798,8 +1798,8 @@
                     "vega": 0.67958977926877,
                     "optImpliedVolatility": 6.9084381103516,
                     "impliedVolatilitySkew": -0.23837890720367,
-                    "bidPrice": 74,
-                    "askPrice": 91.6,
+                    "bidPrice": 77.7,
+                    "askPrice": 80.6,
                     "tradeTime": 1780012800
                 }
             },
@@ -1814,8 +1814,8 @@
                 "vega": "1.6888",
                 "optImpliedVolatility": "30.79%",
                 "impliedVolatilitySkew": "+0.04%",
-                "bidPrice": "22.10",
-                "askPrice": "23.80",
+                "bidPrice": "23.00",
+                "askPrice": "24.50",
                 "tradeTime": "01:13 CT",
                 "raw": {
                     "strike": 4600,
@@ -1828,8 +1828,8 @@
                     "vega": 1.6887732725611,
                     "optImpliedVolatility": 30.789155960083,
                     "impliedVolatilitySkew": 0.00042827129364021,
-                    "bidPrice": 22.1,
-                    "askPrice": 23.8,
+                    "bidPrice": 23,
+                    "askPrice": 24.5,
                     "tradeTime": 1780294394
                 }
             },
@@ -1844,8 +1844,8 @@
                 "vega": "1.7364",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "91.10",
-                "askPrice": "109.60",
+                "bidPrice": "94.70",
+                "askPrice": "97.80",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4600,
@@ -1858,8 +1858,8 @@
                     "vega": 1.7363532013381,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 91.1,
-                    "askPrice": 109.6,
+                    "bidPrice": 94.7,
+                    "askPrice": 97.8,
                     "tradeTime": 1780012800
                 }
             },
@@ -1874,8 +1874,8 @@
                 "vega": "1.4734",
                 "optImpliedVolatility": "28.16%",
                 "impliedVolatilitySkew": "-2.59%",
-                "bidPrice": "16.30",
-                "askPrice": "18.00",
+                "bidPrice": "17.00",
+                "askPrice": "18.20",
                 "tradeTime": "01:46 CT",
                 "raw": {
                     "strike": 4625,
@@ -1888,8 +1888,8 @@
                     "vega": 1.4733733182249,
                     "optImpliedVolatility": 28.156490325928,
                     "impliedVolatilitySkew": -0.025898385047913,
-                    "bidPrice": 16.3,
-                    "askPrice": 18,
+                    "bidPrice": 17,
+                    "askPrice": 18.2,
                     "tradeTime": 1780296411
                 }
             },
@@ -1904,8 +1904,8 @@
                 "vega": "1.6163",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "109.30",
-                "askPrice": "129.20",
+                "bidPrice": "113.50",
+                "askPrice": "116.80",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4625,
@@ -1918,8 +1918,8 @@
                     "vega": 1.6163192428082,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 109.3,
-                    "askPrice": 129.2,
+                    "bidPrice": 113.5,
+                    "askPrice": 116.8,
                     "tradeTime": 1780012800
                 }
             },
@@ -1934,8 +1934,8 @@
                 "vega": "1.2907",
                 "optImpliedVolatility": "28.63%",
                 "impliedVolatilitySkew": "-2.11%",
-                "bidPrice": "11.90",
-                "askPrice": "13.00",
+                "bidPrice": "12.40",
+                "askPrice": "13.50",
                 "tradeTime": "03:47 CT",
                 "raw": {
                     "strike": 4650,
@@ -1948,8 +1948,8 @@
                     "vega": 1.2906955366317,
                     "optImpliedVolatility": 28.632297515869,
                     "impliedVolatilitySkew": -0.021140313148498,
-                    "bidPrice": 11.9,
-                    "askPrice": 13,
+                    "bidPrice": 12.4,
+                    "askPrice": 13.5,
                     "tradeTime": 1780303654
                 }
             },
@@ -1964,8 +1964,8 @@
                 "vega": "1.4730",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "130.10",
-                "askPrice": "139.10",
+                "bidPrice": "133.90",
+                "askPrice": "137.10",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4650,
@@ -1978,8 +1978,8 @@
                     "vega": 1.4730448376165,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 130.1,
-                    "askPrice": 139.1,
+                    "bidPrice": 133.9,
+                    "askPrice": 137.1,
                     "tradeTime": 1780012800
                 }
             },
@@ -1994,7 +1994,7 @@
                 "vega": "1.1392",
                 "optImpliedVolatility": "29.90%",
                 "impliedVolatilitySkew": "-0.84%",
-                "bidPrice": "8.70",
+                "bidPrice": "9.10",
                 "askPrice": "10.00",
                 "tradeTime": "01:26 CT",
                 "raw": {
@@ -2008,7 +2008,7 @@
                     "vega": 1.1391956204131,
                     "optImpliedVolatility": 29.903745651245,
                     "impliedVolatilitySkew": -0.0084258317947387,
-                    "bidPrice": 8.7,
+                    "bidPrice": 9.1,
                     "askPrice": 10,
                     "tradeTime": 1780295216
                 }
@@ -2024,8 +2024,8 @@
                 "vega": "1.3148",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "151.10",
-                "askPrice": "172.10",
+                "bidPrice": "155.50",
+                "askPrice": "158.80",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4675,
@@ -2038,8 +2038,8 @@
                     "vega": 1.3147806389334,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 151.1,
-                    "askPrice": 172.1,
+                    "bidPrice": 155.5,
+                    "askPrice": 158.8,
                     "tradeTime": 1780012800
                 }
             },
@@ -2054,8 +2054,8 @@
                 "vega": "0.9447",
                 "optImpliedVolatility": "29.88%",
                 "impliedVolatilitySkew": "-0.87%",
-                "bidPrice": "6.50",
-                "askPrice": "7.40",
+                "bidPrice": "6.70",
+                "askPrice": "7.50",
                 "tradeTime": "02:04 CT",
                 "raw": {
                     "strike": 4700,
@@ -2068,8 +2068,8 @@
                     "vega": 0.94465997111219,
                     "optImpliedVolatility": 29.876613616943,
                     "impliedVolatilitySkew": -0.0086971521377563,
-                    "bidPrice": 6.5,
-                    "askPrice": 7.4,
+                    "bidPrice": 6.7,
+                    "askPrice": 7.5,
                     "tradeTime": 1780297468
                 }
             },
@@ -2084,8 +2084,8 @@
                 "vega": "1.1497",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "173.50",
-                "askPrice": "183.80",
+                "bidPrice": "177.90",
+                "askPrice": "181.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4700,
@@ -2098,8 +2098,8 @@
                     "vega": 1.1497012154019,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 173.5,
-                    "askPrice": 183.8,
+                    "bidPrice": 177.9,
+                    "askPrice": 181.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -2114,8 +2114,8 @@
                 "vega": "0.7719",
                 "optImpliedVolatility": "30.07%",
                 "impliedVolatilitySkew": "-0.67%",
-                "bidPrice": "4.80",
-                "askPrice": "5.60",
+                "bidPrice": "5.00",
+                "askPrice": "5.70",
                 "tradeTime": "01:53 CT",
                 "raw": {
                     "strike": 4725,
@@ -2128,8 +2128,8 @@
                     "vega": 0.77188170830144,
                     "optImpliedVolatility": 30.074272155762,
                     "impliedVolatilitySkew": -0.0067205667495728,
-                    "bidPrice": 4.8,
-                    "askPrice": 5.6,
+                    "bidPrice": 5,
+                    "askPrice": 5.7,
                     "tradeTime": 1780296828
                 }
             },
@@ -2144,8 +2144,8 @@
                 "vega": "0.9853",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "196.60",
-                "askPrice": "218.20",
+                "bidPrice": "201.00",
+                "askPrice": "204.60",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4725,
@@ -2158,8 +2158,8 @@
                     "vega": 0.98526723446569,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 196.6,
-                    "askPrice": 218.2,
+                    "bidPrice": 201,
+                    "askPrice": 204.6,
                     "tradeTime": 1780012800
                 }
             },
@@ -2175,7 +2175,7 @@
                 "optImpliedVolatility": "31.67%",
                 "impliedVolatilitySkew": "+0.93%",
                 "bidPrice": "3.70",
-                "askPrice": "4.30",
+                "askPrice": "4.40",
                 "tradeTime": "01:11 CT",
                 "raw": {
                     "strike": 4750,
@@ -2189,7 +2189,7 @@
                     "optImpliedVolatility": 31.67163848877,
                     "impliedVolatilitySkew": 0.0092530965805054,
                     "bidPrice": 3.7,
-                    "askPrice": 4.3,
+                    "askPrice": 4.4,
                     "tradeTime": 1780294269
                 }
             },
@@ -2204,8 +2204,8 @@
                 "vega": "0.8278",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "124.70",
-                "askPrice": "334.20",
+                "bidPrice": "224.70",
+                "askPrice": "228.30",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4750,
@@ -2218,8 +2218,8 @@
                     "vega": 0.82775283766373,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 124.7,
-                    "askPrice": 334.2,
+                    "bidPrice": 224.7,
+                    "askPrice": 228.3,
                     "tradeTime": 1780012800
                 }
             },
@@ -2235,7 +2235,7 @@
                 "optImpliedVolatility": "39.71%",
                 "impliedVolatilitySkew": "+8.96%",
                 "bidPrice": "2.80",
-                "askPrice": "3.40",
+                "askPrice": "3.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4775,
@@ -2249,7 +2249,7 @@
                     "optImpliedVolatility": 39.709568023682,
                     "impliedVolatilitySkew": 0.089632391929626,
                     "bidPrice": 2.8,
-                    "askPrice": 3.4,
+                    "askPrice": 3.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -2264,8 +2264,8 @@
                 "vega": "0.6820",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "149.20",
-                "askPrice": "357.90",
+                "bidPrice": "248.80",
+                "askPrice": "252.20",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4775,
@@ -2278,8 +2278,8 @@
                     "vega": 0.68196553083102,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 149.2,
-                    "askPrice": 357.9,
+                    "bidPrice": 248.8,
+                    "askPrice": 252.2,
                     "tradeTime": 1780012800
                 }
             },
@@ -2294,7 +2294,7 @@
                 "vega": "0.5066",
                 "optImpliedVolatility": "33.99%",
                 "impliedVolatilitySkew": "+3.25%",
-                "bidPrice": "2.20",
+                "bidPrice": "2.10",
                 "askPrice": "2.80",
                 "tradeTime": "21:20 CT",
                 "raw": {
@@ -2308,7 +2308,7 @@
                     "vega": 0.50660933024226,
                     "optImpliedVolatility": 33.992691040039,
                     "impliedVolatilitySkew": 0.032463622093201,
-                    "bidPrice": 2.2,
+                    "bidPrice": 2.1,
                     "askPrice": 2.8,
                     "tradeTime": 1780280430
                 }
@@ -2324,8 +2324,8 @@
                 "vega": "0.5512",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "173.80",
-                "askPrice": "279.30",
+                "bidPrice": "273.20",
+                "askPrice": "276.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4800,
@@ -2338,8 +2338,8 @@
                     "vega": 0.55115551151131,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 173.8,
-                    "askPrice": 279.3,
+                    "bidPrice": 273.2,
+                    "askPrice": 276.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -2384,8 +2384,8 @@
                 "vega": "0.4371",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "198.60",
-                "askPrice": "303.80",
+                "bidPrice": "297.60",
+                "askPrice": "301.30",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4825,
@@ -2398,8 +2398,8 @@
                     "vega": 0.43708727628714,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 198.6,
-                    "askPrice": 303.8,
+                    "bidPrice": 297.6,
+                    "askPrice": 301.3,
                     "tradeTime": 1780012800
                 }
             },
@@ -2444,8 +2444,8 @@
                 "vega": "0.3402",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "222.70",
-                "askPrice": "430.50",
+                "bidPrice": "322.20",
+                "askPrice": "325.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4850,
@@ -2458,8 +2458,8 @@
                     "vega": 0.34023127077438,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 222.7,
-                    "askPrice": 430.5,
+                    "bidPrice": 322.2,
+                    "askPrice": 325.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -2474,7 +2474,7 @@
                 "vega": "0.4385",
                 "optImpliedVolatility": "40.78%",
                 "impliedVolatilitySkew": "+10.03%",
-                "bidPrice": "1.10",
+                "bidPrice": "1.00",
                 "askPrice": "1.60",
                 "tradeTime": "05/29/26",
                 "raw": {
@@ -2488,7 +2488,7 @@
                     "vega": 0.43852970135487,
                     "optImpliedVolatility": 40.778961181641,
                     "impliedVolatilitySkew": 0.10032632350922,
-                    "bidPrice": 1.1,
+                    "bidPrice": 1,
                     "askPrice": 1.6,
                     "tradeTime": 1780012800
                 }
@@ -2504,8 +2504,8 @@
                 "vega": "0.2600",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "247.60",
-                "askPrice": "455.10",
+                "bidPrice": "347.00",
+                "askPrice": "350.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4875,
@@ -2518,8 +2518,8 @@
                     "vega": 0.26002772505087,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 247.6,
-                    "askPrice": 455.1,
+                    "bidPrice": 347,
+                    "askPrice": 350.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -2564,8 +2564,8 @@
                 "vega": "0.1952",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "273.30",
-                "askPrice": "479.00",
+                "bidPrice": "271.50",
+                "askPrice": "475.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4900,
@@ -2578,8 +2578,8 @@
                     "vega": 0.19517732444978,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 273.3,
-                    "askPrice": 479,
+                    "bidPrice": 271.5,
+                    "askPrice": 475.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -2594,7 +2594,7 @@
                 "vega": "0.3234",
                 "optImpliedVolatility": "42.25%",
                 "impliedVolatilitySkew": "+11.50%",
-                "bidPrice": "0.70",
+                "bidPrice": "0.60",
                 "askPrice": "1.20",
                 "tradeTime": "05/29/26",
                 "raw": {
@@ -2608,7 +2608,7 @@
                     "vega": 0.32339536063592,
                     "optImpliedVolatility": 42.248764038086,
                     "impliedVolatilitySkew": 0.11502435207367,
-                    "bidPrice": 0.7,
+                    "bidPrice": 0.6,
                     "askPrice": 1.2,
                     "tradeTime": 1780012800
                 }
@@ -2624,8 +2624,8 @@
                 "vega": "0.1439",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "299.30",
-                "askPrice": "502.60",
+                "bidPrice": "297.50",
+                "askPrice": "499.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4925,
@@ -2638,8 +2638,8 @@
                     "vega": 0.14392157368147,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 299.3,
-                    "askPrice": 502.6,
+                    "bidPrice": 297.5,
+                    "askPrice": 499.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -2684,8 +2684,8 @@
                 "vega": "0.1043",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "325.20",
-                "askPrice": "526.50",
+                "bidPrice": "323.40",
+                "askPrice": "523.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4950,
@@ -2698,8 +2698,8 @@
                     "vega": 0.10428684741956,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 325.2,
-                    "askPrice": 526.5,
+                    "bidPrice": 323.4,
+                    "askPrice": 523.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -2715,7 +2715,7 @@
                 "optImpliedVolatility": "44.23%",
                 "impliedVolatilitySkew": "+13.48%",
                 "bidPrice": "0.40",
-                "askPrice": "1.00",
+                "askPrice": "0.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4975,
@@ -2729,7 +2729,7 @@
                     "optImpliedVolatility": 44.227981567383,
                     "impliedVolatilitySkew": 0.13481652736664,
                     "bidPrice": 0.4,
-                    "askPrice": 1,
+                    "askPrice": 0.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -2744,8 +2744,8 @@
                 "vega": "0.0743",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "350.90",
-                "askPrice": "550.60",
+                "bidPrice": "349.10",
+                "askPrice": "547.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 4975,
@@ -2758,8 +2758,8 @@
                     "vega": 0.074277675614017,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 350.9,
-                    "askPrice": 550.6,
+                    "bidPrice": 349.1,
+                    "askPrice": 547.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -2804,8 +2804,8 @@
                 "vega": "0.0520",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "376.50",
-                "askPrice": "574.80",
+                "bidPrice": "374.70",
+                "askPrice": "571.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5000,
@@ -2818,8 +2818,8 @@
                     "vega": 0.052014931556365,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 376.5,
-                    "askPrice": 574.8,
+                    "bidPrice": 374.7,
+                    "askPrice": 571.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -2835,7 +2835,7 @@
                 "optImpliedVolatility": "44.01%",
                 "impliedVolatilitySkew": "+13.27%",
                 "bidPrice": "0.30",
-                "askPrice": "0.80",
+                "askPrice": "0.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5025,
@@ -2849,7 +2849,7 @@
                     "optImpliedVolatility": 44.011993408203,
                     "impliedVolatilitySkew": 0.13265664577484,
                     "bidPrice": 0.3,
-                    "askPrice": 0.8,
+                    "askPrice": 0.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -2864,8 +2864,8 @@
                 "vega": "0.0358",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "402.00",
-                "askPrice": "599.20",
+                "bidPrice": "400.20",
+                "askPrice": "596.10",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5025,
@@ -2878,8 +2878,8 @@
                     "vega": 0.035822213110943,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 402,
-                    "askPrice": 599.2,
+                    "bidPrice": 400.2,
+                    "askPrice": 596.1,
                     "tradeTime": 1780012800
                 }
             },
@@ -2894,7 +2894,7 @@
                 "vega": "0.1714",
                 "optImpliedVolatility": "47.06%",
                 "impliedVolatilitySkew": "+16.31%",
-                "bidPrice": "0.10",
+                "bidPrice": "0.20",
                 "askPrice": "0.70",
                 "tradeTime": "05/29/26",
                 "raw": {
@@ -2908,7 +2908,7 @@
                     "vega": 0.17140008044218,
                     "optImpliedVolatility": 47.058029174805,
                     "impliedVolatilitySkew": 0.16311700344086,
-                    "bidPrice": 0.1,
+                    "bidPrice": 0.2,
                     "askPrice": 0.7,
                     "tradeTime": 1780012800
                 }
@@ -2924,8 +2924,8 @@
                 "vega": "0.0243",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "427.40",
-                "askPrice": "623.60",
+                "bidPrice": "425.60",
+                "askPrice": "620.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5050,
@@ -2938,8 +2938,8 @@
                     "vega": 0.024268506670623,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 427.4,
-                    "askPrice": 623.6,
+                    "bidPrice": 425.6,
+                    "askPrice": 620.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -2954,8 +2954,8 @@
                 "vega": "0.1862",
                 "optImpliedVolatility": "50.01%",
                 "impliedVolatilitySkew": "+19.26%",
-                "bidPrice": "0.10",
-                "askPrice": "0.80",
+                "bidPrice": "0.20",
+                "askPrice": "0.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5075,
@@ -2968,8 +2968,8 @@
                     "vega": 0.18616371972289,
                     "optImpliedVolatility": 50.010757446289,
                     "impliedVolatilitySkew": 0.1926442861557,
-                    "bidPrice": 0.1,
-                    "askPrice": 0.8,
+                    "bidPrice": 0.2,
+                    "askPrice": 0.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -2984,8 +2984,8 @@
                 "vega": "0.0162",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "452.70",
-                "askPrice": "648.20",
+                "bidPrice": "450.90",
+                "askPrice": "645.10",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5075,
@@ -2998,8 +2998,8 @@
                     "vega": 0.016177429302101,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 452.7,
-                    "askPrice": 648.2,
+                    "bidPrice": 450.9,
+                    "askPrice": 645.1,
                     "tradeTime": 1780012800
                 }
             },
@@ -3015,7 +3015,7 @@
                 "optImpliedVolatility": "48.62%",
                 "impliedVolatilitySkew": "+17.87%",
                 "bidPrice": "0.10",
-                "askPrice": "0.90",
+                "askPrice": "7.30",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5100,
@@ -3029,7 +3029,7 @@
                     "optImpliedVolatility": 48.62060546875,
                     "impliedVolatilitySkew": 0.17874276638031,
                     "bidPrice": 0.1,
-                    "askPrice": 0.9,
+                    "askPrice": 7.3,
                     "tradeTime": 1780012800
                 }
             },
@@ -3044,8 +3044,8 @@
                 "vega": "0.0106",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "478.00",
-                "askPrice": "672.80",
+                "bidPrice": "476.20",
+                "askPrice": "669.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5100,
@@ -3058,8 +3058,8 @@
                     "vega": 0.010613517607489,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 478,
-                    "askPrice": 672.8,
+                    "bidPrice": 476.2,
+                    "askPrice": 669.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -3104,8 +3104,8 @@
                 "vega": "0.0069",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "503.30",
-                "askPrice": "697.50",
+                "bidPrice": "501.50",
+                "askPrice": "694.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5125,
@@ -3118,8 +3118,8 @@
                     "vega": 0.0068548532577575,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 503.3,
-                    "askPrice": 697.5,
+                    "bidPrice": 501.5,
+                    "askPrice": 694.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -3164,8 +3164,8 @@
                 "vega": "0.0044",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "528.50",
-                "askPrice": "722.20",
+                "bidPrice": "526.70",
+                "askPrice": "719.10",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5150,
@@ -3178,8 +3178,8 @@
                     "vega": 0.0043594295051388,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 528.5,
-                    "askPrice": 722.2,
+                    "bidPrice": 526.7,
+                    "askPrice": 719.1,
                     "tradeTime": 1780012800
                 }
             },
@@ -3224,8 +3224,8 @@
                 "vega": "0.0027",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "553.70",
-                "askPrice": "747.00",
+                "bidPrice": "551.90",
+                "askPrice": "743.90",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5175,
@@ -3238,8 +3238,8 @@
                     "vega": 0.0027305847711088,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 553.7,
-                    "askPrice": 747,
+                    "bidPrice": 551.9,
+                    "askPrice": 743.9,
                     "tradeTime": 1780012800
                 }
             },
@@ -3284,8 +3284,8 @@
                 "vega": "0.0017",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "578.80",
-                "askPrice": "771.80",
+                "bidPrice": "577.10",
+                "askPrice": "768.60",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5200,
@@ -3298,8 +3298,8 @@
                     "vega": 0.0016849079417197,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 578.8,
-                    "askPrice": 771.8,
+                    "bidPrice": 577.1,
+                    "askPrice": 768.6,
                     "tradeTime": 1780012800
                 }
             },
@@ -3315,7 +3315,7 @@
                 "optImpliedVolatility": "54.05%",
                 "impliedVolatilitySkew": "+23.30%",
                 "bidPrice": "N/A",
-                "askPrice": "1.00",
+                "askPrice": "8.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5225,
@@ -3329,7 +3329,7 @@
                     "optImpliedVolatility": 54.048156738281,
                     "impliedVolatilitySkew": 0.23301827907562,
                     "bidPrice": 0,
-                    "askPrice": 1,
+                    "askPrice": 8,
                     "tradeTime": 1780012800
                 }
             },
@@ -3344,8 +3344,8 @@
                 "vega": "0.0010",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "604.00",
-                "askPrice": "796.60",
+                "bidPrice": "602.20",
+                "askPrice": "793.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5225,
@@ -3358,8 +3358,8 @@
                     "vega": 0.0010244468106615,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 604,
-                    "askPrice": 796.6,
+                    "bidPrice": 602.2,
+                    "askPrice": 793.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -3375,7 +3375,7 @@
                 "optImpliedVolatility": "54.29%",
                 "impliedVolatilitySkew": "+23.54%",
                 "bidPrice": "N/A",
-                "askPrice": "1.20",
+                "askPrice": "8.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5250,
@@ -3389,7 +3389,7 @@
                     "optImpliedVolatility": 54.287414550781,
                     "impliedVolatilitySkew": 0.23541085720062,
                     "bidPrice": 0,
-                    "askPrice": 1.2,
+                    "askPrice": 8,
                     "tradeTime": 1780012800
                 }
             },
@@ -3404,8 +3404,8 @@
                 "vega": "0.0006",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "629.10",
-                "askPrice": "821.40",
+                "bidPrice": "627.30",
+                "askPrice": "818.30",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5250,
@@ -3418,8 +3418,8 @@
                     "vega": 0.00061389181553985,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 629.1,
-                    "askPrice": 821.4,
+                    "bidPrice": 627.3,
+                    "askPrice": 818.3,
                     "tradeTime": 1780012800
                 }
             },
@@ -3464,8 +3464,8 @@
                 "vega": "0.0002",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "679.10",
-                "askPrice": "871.30",
+                "bidPrice": "677.30",
+                "askPrice": "868.20",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5300,
@@ -3478,8 +3478,8 @@
                     "vega": 0.00021122320769928,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 679.1,
-                    "askPrice": 871.3,
+                    "bidPrice": 677.3,
+                    "askPrice": 868.2,
                     "tradeTime": 1780012800
                 }
             },
@@ -3524,8 +3524,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "778.80",
-                "askPrice": "971.60",
+                "bidPrice": "777.00",
+                "askPrice": "968.50",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5400,
@@ -3538,8 +3538,8 @@
                     "vega": 2.1201705844242e-05,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 778.8,
-                    "askPrice": 971.6,
+                    "bidPrice": 777,
+                    "askPrice": 968.5,
                     "tradeTime": 1780012800
                 }
             },
@@ -3584,8 +3584,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "878.50",
-                "askPrice": "1,071.80",
+                "bidPrice": "876.70",
+                "askPrice": "1,068.70",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5500,
@@ -3598,8 +3598,8 @@
                     "vega": 1.7261094158382e-06,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 878.5,
-                    "askPrice": 1071.8,
+                    "bidPrice": 876.7,
+                    "askPrice": 1068.7,
                     "tradeTime": 1780012800
                 }
             },
@@ -3644,8 +3644,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "978.20",
-                "askPrice": "1,172.10",
+                "bidPrice": "976.50",
+                "askPrice": "1,169.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5600,
@@ -3658,8 +3658,8 @@
                     "vega": 1.1536184463239e-07,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 978.2,
-                    "askPrice": 1172.1,
+                    "bidPrice": 976.5,
+                    "askPrice": 1169,
                     "tradeTime": 1780012800
                 }
             },
@@ -3704,8 +3704,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "1,078.00",
-                "askPrice": "1,272.40",
+                "bidPrice": "1,076.20",
+                "askPrice": "1,269.20",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5700,
@@ -3718,8 +3718,8 @@
                     "vega": 6.4008012544474e-09,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 1078,
-                    "askPrice": 1272.4,
+                    "bidPrice": 1076.2,
+                    "askPrice": 1269.2,
                     "tradeTime": 1780012800
                 }
             },
@@ -3764,8 +3764,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "1,127.90",
-                "askPrice": "1,322.50",
+                "bidPrice": "1,126.10",
+                "askPrice": "1,319.40",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 5750,
@@ -3778,8 +3778,8 @@
                     "vega": 1.4107501193175e-09,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 1127.9,
-                    "askPrice": 1322.5,
+                    "bidPrice": 1126.1,
+                    "askPrice": 1319.4,
                     "tradeTime": 1780012800
                 }
             },
@@ -3824,8 +3824,8 @@
                 "vega": "0.0000",
                 "optImpliedVolatility": "0.00%",
                 "impliedVolatilitySkew": "-30.75%",
-                "bidPrice": "1,377.20",
-                "askPrice": "1,573.10",
+                "bidPrice": "1,375.40",
+                "askPrice": "1,570.00",
                 "tradeTime": "05/29/26",
                 "raw": {
                     "strike": 6000,
@@ -3838,8 +3838,8 @@
                     "vega": 3.9628773568646e-13,
                     "optImpliedVolatility": 0,
                     "impliedVolatilitySkew": -0.30746328830719,
-                    "bidPrice": 1377.2,
-                    "askPrice": 1573.1,
+                    "bidPrice": 1375.4,
+                    "askPrice": 1570,
                     "tradeTime": 1780012800
                 }
             }
