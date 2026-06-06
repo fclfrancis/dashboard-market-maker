@@ -1,0 +1,6 @@
+.streamlit/secrets.toml
+perfil_barchart/
+pycache/
+*.pyc
+.venv/
+.env
