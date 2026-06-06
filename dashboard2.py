@@ -478,16 +478,16 @@ def calcular_niveis_institucionais(df_raw, spot, s_min, s_max, mult=100.0):
     return {
         # GEX subplot (col 2)
         "VOL Trigger":          _safe(vol_trigger),
-        "Gamma Pos. OI":                _safe(gamma_pos_oi),
-        "Gamma Neg. OI | VOL Attack":   _safe(gamma_neg_oi),
-        "Gamma Pos.+ Vol":               _safe(per["GEX_VOL"].idxmax()),
-        "Gamma Neg. Vol":               _safe(per["GEX_VOL"].idxmin()),
+        "Γ+ OI":                _safe(gamma_pos_oi),
+        "Γ- OI | VOL Attack":   _safe(gamma_neg_oi),
+        "Γ+ Vol":               _safe(per["GEX_VOL"].idxmax()),
+        "Γ- Vol":               _safe(per["GEX_VOL"].idxmin()),
         # DEX subplot (col 1)
-        "Delta Flip":               _safe(delta_flip),
-        "Delta Pos. OI":                _safe(per["DEX_OI"].idxmax()),
-        "Nelta Neg. OI":                _safe(per["DEX_OI"].idxmin()),
-        "Delta Pos. Vol":               _safe(per["DEX_VOL"].idxmax()),
-        "Nelta Neg. Vol":               _safe(per["DEX_VOL"].idxmin()),
+        "Δ Flip":               _safe(delta_flip),
+        "Δ+ OI":                _safe(per["DEX_OI"].idxmax()),
+        "Δ- OI":                _safe(per["DEX_OI"].idxmin()),
+        "Δ+ Vol":               _safe(per["DEX_VOL"].idxmax()),
+        "Δ- Vol":               _safe(per["DEX_VOL"].idxmin()),
     }
 
 # ══════════════════════════════════════════════════════════════════
@@ -652,13 +652,26 @@ def build_pressure_chart(df, spot, niveis=None):
             line=dict(color=COLOR_NEON,width=1.5,dash="dash"),row=1,col=ci)
         if ci==1: fig.add_annotation(x=1,xref=f"{xref} domain",y=spot_lbl,yref="y",text=f"  SPOT {_fmt_strike(spot)}",showarrow=False,xanchor="left",font=dict(color=COLOR_NEON,size=13,family="JetBrains Mono"),row=1,col=ci)
 
-    # ── NÍVEIS INSTITUCIONAIS (linhas douradas pontilhadas + label) ──
+    fig.update_layout(height=700,template="plotly_dark",paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,12,20,0.6)",
+        barmode="overlay",showlegend=False,margin=dict(t=90,b=20,l=10,r=10),font=dict(family="JetBrains Mono",size=13,color="#ccddf8"),
+        hoverlabel=dict(font_size=14,font_family="JetBrains Mono",bgcolor="#0a1a20",bordercolor="#00ffe7"))
+    for ci in range(1,4): fig.update_xaxes(showgrid=True,gridcolor="rgba(0,255,255,0.06)",zerolinecolor="rgba(0,255,255,0.4)",zerolinewidth=1.5,row=1,col=ci)
+    fig.update_yaxes(showgrid=True,gridcolor="rgba(0,255,255,0.06)",row=1,col=1)
+
+    # Estiliza anotações já existentes (subplot titles + label de SPOT) com cor neon
+    for ann in fig.layout.annotations:
+        ann.font.color = COLOR_NEON
+        ann.font.family = "Inter, sans-serif"
+        ann.font.size = 13
+
+    # ── NÍVEIS INSTITUCIONAIS (linhas + labels douradas) ──
+    # Adicionados APÓS o loop de override acima, para garantir que as labels
+    # douradas não sejam sobrescritas pelo estilo neon padrão.
     if niveis and sy_num:
         gex_keys = ["VOL Trigger", "Γ+ OI", "Γ- OI | VOL Attack", "Γ+ Vol", "Γ- Vol"]
         dex_keys = ["Δ Flip", "Δ+ OI", "Δ- OI", "Δ+ Vol", "Δ- Vol"]
 
         def _draw_levels(keys, col_idx):
-            # agrupa níveis que caem no mesmo strike categórico
             buckets = {}  # lbl_cat -> [(nome, raw_strike), ...]
             for k in keys:
                 v = niveis.get(k)
@@ -681,36 +694,20 @@ def build_pressure_chart(df, spot, niveis=None):
                     raw_med = float(np.mean([r for _, r in items]))
                     txt = f"{nomes} · {_fmt_strike(raw_med)}"
                 fig.add_annotation(x=0.99, xref=f"{xref} domain", y=lbl, yref="y",
-                    text=txt, showarrow=False, xanchor="right", yanchor="bottom", yshift=2,
+                    text=txt, showarrow=False, xanchor="right", yanchor="middle",
                     font=dict(color=COLOR_GOLD, size=10, family="JetBrains Mono"),
+                    bgcolor="rgba(8,12,20,0.7)",
                     row=1, col=col_idx)
 
         _draw_levels(dex_keys, 1)
         _draw_levels(gex_keys, 2)
 
-    fig.update_layout(height=700,template="plotly_dark",paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,12,20,0.6)",
-        barmode="overlay",showlegend=False,margin=dict(t=50,b=20,l=10,r=10),font=dict(family="JetBrains Mono",size=13,color="#ccddf8"),
-        hoverlabel=dict(font_size=14,font_family="JetBrains Mono",bgcolor="#0a1a20",bordercolor="#00ffe7"))
-    for ci in range(1,4): fig.update_xaxes(showgrid=True,gridcolor="rgba(0,255,255,0.06)",zerolinecolor="rgba(0,255,255,0.4)",zerolinewidth=1.5,row=1,col=ci)
-    fig.update_yaxes(showgrid=True,gridcolor="rgba(0,255,255,0.06)",row=1,col=1)
-
-    # Aplica estilo padrão apenas a anotações de subplot title / spot (cyan).
-    # Anotações de níveis institucionais já estão em COLOR_GOLD e devem ser preservadas.
-    for ann in fig.layout.annotations:
-        try:
-            if ann.font and ann.font.color == COLOR_GOLD:
-                continue
-        except Exception:
-            pass
-        ann.font.color = COLOR_NEON
-        ann.font.family = "Inter, sans-serif"
-        ann.font.size = 13
-
-    fig.add_annotation(x=0.5,y=1.04,xref="paper",yref="paper",showarrow=False,
+    # Legenda do topo — posicionada acima dos subplot titles
+    fig.add_annotation(x=0.5,y=1.10,xref="paper",yref="paper",showarrow=False,
         text=(f"<span style='color:{COLOR_NEON};'>█</span> VOL-based (opaco)  &nbsp;&nbsp;"
               f"<span style='color:{COLOR_NEON};opacity:0.35;'>█</span> OI-based (transparente)  &nbsp;&nbsp;"
               f"<span style='color:{COLOR_GOLD};'>┄┄</span> Níveis institucionais"),
-        font=dict(size=13,family="JetBrains Mono",color="#8a9bb5"),align="center")
+        font=dict(size=12,family="JetBrains Mono",color="#8a9bb5"),align="center")
     return fig
 
 # ══════════════════════════════════════════════════════════════════
