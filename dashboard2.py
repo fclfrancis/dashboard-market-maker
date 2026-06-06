@@ -477,17 +477,17 @@ def calcular_niveis_institucionais(df_raw, spot, s_min, s_max, mult=100.0):
 
     return {
         # GEX subplot (col 2)
-        "VOL Trigger":          _safe(vol_trigger),
-        "Gamma Pos.OI":                _safe(gamma_pos_oi),
-        "Gamma Neg. OI | VOL Attack":   _safe(gamma_neg_oi),
-        "Gamma Pos. Vol":               _safe(per["GEX_VOL"].idxmax()),
+        "VOL Trigger":                    _safe(vol_trigger),
+        "Gamma Pos.OI":                   _safe(gamma_pos_oi),
+        "Gamma Neg. OI | VOL Attack":     _safe(gamma_neg_oi),
+        "Gamma Pos. Vol":                 _safe(per["GEX_VOL"].idxmax()),
         "Gamma Neg. OIVol":               _safe(per["GEX_VOL"].idxmin()),
         # DEX subplot (col 1)
-        "Delta Flip":               _safe(delta_flip),
-        "Delta Pos. OI":                _safe(per["DEX_OI"].idxmax()),
-        "Delta Neg. OI":                _safe(per["DEX_OI"].idxmin()),
-        "Delta Pos.Vol":               _safe(per["DEX_VOL"].idxmax()),
-        "Delta Neg. Vol":               _safe(per["DEX_VOL"].idxmin()),
+        "Delta Flip":                     _safe(delta_flip),
+        "Delta Pos. OI":                  _safe(per["DEX_OI"].idxmax()),
+        "Delta Neg. OI":                  _safe(per["DEX_OI"].idxmin()),
+        "Delta Pos.Vol":                  _safe(per["DEX_VOL"].idxmax()),
+        "Delta Neg. Vol":                 _safe(per["DEX_VOL"].idxmin()),
     }
 
 # ══════════════════════════════════════════════════════════════════
@@ -668,8 +668,8 @@ def build_pressure_chart(df, spot, niveis=None):
     # Adicionados APÓS o loop de override acima, para garantir que as labels
     # douradas não sejam sobrescritas pelo estilo neon padrão.
     if niveis and sy_num:
-        gex_keys = ["VOL Trigger", "Γ+ OI", "Γ- OI | VOL Attack", "Γ+ Vol", "Γ- Vol"]
-        dex_keys = ["Δ Flip", "Δ+ OI", "Δ- OI", "Δ+ Vol", "Δ- Vol"]
+        gex_keys = ["VOL Trigger", "Gamma Pos.OI", "Gamma Neg. OI | VOL Attack", "Gamma Pos. Vol", "Gamma Neg. OIVol"]
+        dex_keys = ["Delta Flip", "Delta Pos. OI", "Delta Neg. OI", "Delta Pos.Vol", "Delta Neg. Vol"]
 
         def _draw_levels(keys, col_idx):
             buckets = {}  # lbl_cat -> [(nome, raw_strike), ...]
