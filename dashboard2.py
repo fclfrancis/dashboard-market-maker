@@ -2,6 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════╗
 ║   DASHBOARD INSTITUCIONAL MARKET MAKER                          ║
 ║   Engine: V9  |  Layout: Futurista / Cyberpunk HUD             ║
+║   + Níveis Institucionais no Triple Pressure Map (timesat.py)  ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
 
@@ -416,6 +417,80 @@ def calcular_pcp_detalhado(df):
     return resultado
 
 # ══════════════════════════════════════════════════════════════════
+# 5.1 · NÍVEIS INSTITUCIONAIS (port do timesat.py)
+# ══════════════════════════════════════════════════════════════════
+def _zero_cross(xs, ys):
+    xs = np.asarray(xs, float); ys = np.asarray(ys, float)
+    if len(ys) == 0:
+        return None
+    for i in range(1, len(ys)):
+        if np.sign(ys[i]) != np.sign(ys[i-1]):
+            y0, y1 = ys[i-1], ys[i]
+            if y1 != y0:
+                return float(xs[i-1] - y0 * (xs[i] - xs[i-1]) / (y1 - y0))
+    return float(xs[np.nanargmin(np.abs(ys))])
+
+def calcular_niveis_institucionais(df_raw, spot, s_min, s_max, mult=100.0):
+    """Retorna dict de níveis estruturais para overlay no Triple Pressure Map.
+
+    GEX subplot: VOL Trigger, Γ+ OI, Γ- OI (= VOL Attack), Γ+ Vol, Γ- Vol
+    DEX subplot: Δ Flip, Δ+ OI, Δ- OI, Δ+ Vol, Δ- Vol
+    """
+    d = df_raw[(df_raw["strikePrice"] >= s_min) & (df_raw["strikePrice"] <= s_max)].copy()
+    if d.empty or spot <= 0:
+        return {}
+
+    SG = (spot ** 2) * 0.01
+    SD = spot
+    d["Sign"]    = np.where(d["optionType"] == "Call", 1, -1)
+    d["GEX_OI"]  = d["gamma"] * d["openInterest"] * mult * SG * d["Sign"]
+    d["GEX_VOL"] = d["gamma"] * d["volume"]       * mult * SG * d["Sign"]
+    d["DEX_OI"]  = d["delta"] * d["openInterest"] * mult * SD
+    d["DEX_VOL"] = d["delta"] * d["volume"]       * mult * SD
+
+    per = d.groupby("strikePrice").agg(
+        GEX_OI=("GEX_OI","sum"),  GEX_VOL=("GEX_VOL","sum"),
+        DEX_OI=("DEX_OI","sum"),  DEX_VOL=("DEX_VOL","sum"),
+    ).sort_index()
+    if per.empty:
+        return {}
+
+    # ── Curva GEX OI suavizada → Gamma Pos/Neg (OI) + VOL Trigger ──
+    xs = per.index.to_numpy(float)
+    ys = per["GEX_OI"].rolling(5, center=True, min_periods=1).mean().to_numpy(float)
+    i_max, i_min = int(np.nanargmax(ys)), int(np.nanargmin(ys))
+    gamma_pos_oi = float(xs[i_max])
+    gamma_neg_oi = float(xs[i_min])          # = VOL Attack
+    zf = _zero_cross(xs, ys)
+    x_dom = gamma_pos_oi if abs(ys[i_max]) >= abs(ys[i_min]) else gamma_neg_oi
+    vol_trigger = float(zf + 0.75 * (x_dom - zf)) if zf is not None else None
+
+    # ── Delta Flip: zero-cross do DEX OI líquido ──
+    delta_flip = _zero_cross(per.index.to_numpy(float), per["DEX_OI"].to_numpy(float))
+
+    def _safe(v):
+        try:
+            v = float(v)
+            return v if not (np.isnan(v) or np.isinf(v)) else None
+        except:
+            return None
+
+    return {
+        # GEX subplot (col 2)
+        "VOL Trigger":          _safe(vol_trigger),
+        "Γ+ OI":                _safe(gamma_pos_oi),
+        "Γ- OI | VOL Attack":   _safe(gamma_neg_oi),
+        "Γ+ Vol":               _safe(per["GEX_VOL"].idxmax()),
+        "Γ- Vol":               _safe(per["GEX_VOL"].idxmin()),
+        # DEX subplot (col 1)
+        "Δ Flip":               _safe(delta_flip),
+        "Δ+ OI":                _safe(per["DEX_OI"].idxmax()),
+        "Δ- OI":                _safe(per["DEX_OI"].idxmin()),
+        "Δ+ Vol":               _safe(per["DEX_VOL"].idxmax()),
+        "Δ- Vol":               _safe(per["DEX_VOL"].idxmin()),
+    }
+
+# ══════════════════════════════════════════════════════════════════
 # 6 · INTELIGÊNCIA
 # ══════════════════════════════════════════════════════════════════
 def processar_inteligencia(df, spot, threshold=2.5):
@@ -531,35 +606,40 @@ def build_main_chart(df, strikes_agg, spot):
     return fig
 
 # ══════════════════════════════════════════════════════════════════
-# 9 · GRÁFICO TRIPLE PRESSURE
+# 9 · GRÁFICO TRIPLE PRESSURE  (com níveis institucionais)
 # ══════════════════════════════════════════════════════════════════
-def build_pressure_chart(df, spot):
+def build_pressure_chart(df, spot, niveis=None):
     bar_vol=(df.groupby("strikePrice").agg(dex=("dex_total","sum"),gex=("gex_total","sum"),vanna=("vanna_total","sum")).reset_index().sort_values("strikePrice"))
     bar_oi=(df.groupby("strikePrice").agg(dex_oi=("dex_oi","sum"),gex_oi=("gex_oi","sum"),vanna_oi=("vanna_oi","sum")).reset_index().sort_values("strikePrice"))
     bar5=bar_vol.merge(bar_oi,on="strikePrice",how="left").fillna(0)
     sy_num=bar5["strikePrice"].tolist(); bar5_lbl=bar5["strikePrice"].map(_fmt_strike)
     spot_lbl=_fmt_strike(min(sy_num,key=lambda s:abs(s-spot)))
+
     def build_legends(metric_vol,metric_oi,legend_fn):
-        niveis,descs=[],[]
+        niveis_l,descs=[],[]
         serie_vol=bar5[metric_vol]; serie_oi=bar5[metric_oi]
         for i,sk in enumerate(sy_num):
             vol_val=float(serie_vol.iloc[i]); oi_val=float(serie_oi.iloc[i])
             nv,dc=legend_fn(vol_val,serie_vol,sk,spot)
-            niveis.append(nv); descs.append(f"{dc} | OI-based: {fmt_M(oi_val)}")
-        return niveis,descs
+            niveis_l.append(nv); descs.append(f"{dc} | OI-based: {fmt_M(oi_val)}")
+        return niveis_l,descs
+
     dex_niveis,dex_descs=build_legends("dex","dex_oi",legenda_dex_ctx)
     gex_niveis,gex_descs=build_legends("gex","gex_oi",legenda_gex_ctx)
     vanna_niveis,vanna_descs=build_legends("vanna","vanna_oi",legenda_vanna_ctx)
+
     fig=make_subplots(rows=1,cols=3,shared_yaxes=True,subplot_titles=["DELTA FLOW (DEX)","GAMMA EXPOSURE (GEX)","VANNA (dΔ/dVol)"],horizontal_spacing=0.025)
+
     def colored_bars(vals,pc,nc):
         arr=np.array(vals,dtype=float); mx=float(np.abs(arr).max()) if len(arr)>0 else 1.0
         return [COLOR_GOLD if(mx>0 and abs(x)==mx) else(pc if x>=0 else nc) for x in arr]
+
     configs=[("dex","dex_oi",dex_niveis,dex_descs,COLOR_NEON,COLOR_ORANGE,"DEX (Delta Flow)",1),
              ("gex","gex_oi",gex_niveis,gex_descs,COLOR_PURPLE,COLOR_ORANGE,"GEX (Gamma MM)",2),
              ("vanna","vanna_oi",vanna_niveis,vanna_descs,"#4dff91",COLOR_ORANGE,"VANNA (dΔ/dVol)",3)]
-    for metric_vol,metric_oi,niveis,descs,pc,nc,label,ci in configs:
+    for metric_vol,metric_oi,niveis_l,descs,pc,nc,label,ci in configs:
         v_vol=bar5[metric_vol].values; v_oi=bar5[metric_oi].values
-        cd=np.stack([niveis,descs,[fmt_M(x) for x in v_oi]],axis=1)
+        cd=np.stack([niveis_l,descs,[fmt_M(x) for x in v_oi]],axis=1)
         fig.add_trace(go.Bar(y=bar5_lbl,x=bar5[metric_vol],orientation="h",marker_color=colored_bars(v_vol,pc,nc),
             showlegend=False,name=f"{label} VOL",customdata=cd,
             hovertemplate=(f"<b>Strike: %{{y}}</b><br>VOL-based: $%{{x:,.0f}}<br>OI-based: %{{customdata[2]}}<br>──────────────────<br>%{{customdata[0]}}<br><i>%{{customdata[1]}}</i><extra>{label}</extra>")),row=1,col=ci)
@@ -571,14 +651,65 @@ def build_pressure_chart(df, spot):
         fig.add_shape(type="line",x0=0,x1=1,xref=f"{xref} domain",y0=spot_lbl,y1=spot_lbl,yref="y",
             line=dict(color=COLOR_NEON,width=1.5,dash="dash"),row=1,col=ci)
         if ci==1: fig.add_annotation(x=1,xref=f"{xref} domain",y=spot_lbl,yref="y",text=f"  SPOT {_fmt_strike(spot)}",showarrow=False,xanchor="left",font=dict(color=COLOR_NEON,size=13,family="JetBrains Mono"),row=1,col=ci)
+
+    # ── NÍVEIS INSTITUCIONAIS (linhas douradas pontilhadas + label) ──
+    if niveis and sy_num:
+        gex_keys = ["VOL Trigger", "Γ+ OI", "Γ- OI | VOL Attack", "Γ+ Vol", "Γ- Vol"]
+        dex_keys = ["Δ Flip", "Δ+ OI", "Δ- OI", "Δ+ Vol", "Δ- Vol"]
+
+        def _draw_levels(keys, col_idx):
+            # agrupa níveis que caem no mesmo strike categórico
+            buckets = {}  # lbl_cat -> [(nome, raw_strike), ...]
+            for k in keys:
+                v = niveis.get(k)
+                if v is None: continue
+                closest = min(sy_num, key=lambda s: abs(s - v))
+                lbl = _fmt_strike(closest)
+                buckets.setdefault(lbl, []).append((k, v))
+
+            xref = f"x{col_idx if col_idx>1 else ''}"
+            for lbl, items in buckets.items():
+                fig.add_shape(type="line", x0=0, x1=1, xref=f"{xref} domain",
+                    y0=lbl, y1=lbl, yref="y",
+                    line=dict(color=COLOR_GOLD, width=1.2, dash="dot"),
+                    row=1, col=col_idx)
+                if len(items) == 1:
+                    name, raw = items[0]
+                    txt = f"{name} · {_fmt_strike(raw)}"
+                else:
+                    nomes = " | ".join(n for n, _ in items)
+                    raw_med = float(np.mean([r for _, r in items]))
+                    txt = f"{nomes} · {_fmt_strike(raw_med)}"
+                fig.add_annotation(x=0.99, xref=f"{xref} domain", y=lbl, yref="y",
+                    text=txt, showarrow=False, xanchor="right", yanchor="bottom", yshift=2,
+                    font=dict(color=COLOR_GOLD, size=10, family="JetBrains Mono"),
+                    row=1, col=col_idx)
+
+        _draw_levels(dex_keys, 1)
+        _draw_levels(gex_keys, 2)
+
     fig.update_layout(height=700,template="plotly_dark",paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,12,20,0.6)",
         barmode="overlay",showlegend=False,margin=dict(t=50,b=20,l=10,r=10),font=dict(family="JetBrains Mono",size=13,color="#ccddf8"),
         hoverlabel=dict(font_size=14,font_family="JetBrains Mono",bgcolor="#0a1a20",bordercolor="#00ffe7"))
     for ci in range(1,4): fig.update_xaxes(showgrid=True,gridcolor="rgba(0,255,255,0.06)",zerolinecolor="rgba(0,255,255,0.4)",zerolinewidth=1.5,row=1,col=ci)
     fig.update_yaxes(showgrid=True,gridcolor="rgba(0,255,255,0.06)",row=1,col=1)
-    for ann in fig.layout.annotations: ann.font.color=COLOR_NEON; ann.font.family="Inter, sans-serif"; ann.font.size=13
+
+    # Aplica estilo padrão apenas a anotações de subplot title / spot (cyan).
+    # Anotações de níveis institucionais já estão em COLOR_GOLD e devem ser preservadas.
+    for ann in fig.layout.annotations:
+        try:
+            if ann.font and ann.font.color == COLOR_GOLD:
+                continue
+        except Exception:
+            pass
+        ann.font.color = COLOR_NEON
+        ann.font.family = "Inter, sans-serif"
+        ann.font.size = 13
+
     fig.add_annotation(x=0.5,y=1.04,xref="paper",yref="paper",showarrow=False,
-        text=(f"<span style='color:{COLOR_NEON};'>█</span> VOL-based (opaco)  &nbsp;&nbsp;<span style='color:{COLOR_NEON};opacity:0.35;'>█</span> OI-based (transparente)"),
+        text=(f"<span style='color:{COLOR_NEON};'>█</span> VOL-based (opaco)  &nbsp;&nbsp;"
+              f"<span style='color:{COLOR_NEON};opacity:0.35;'>█</span> OI-based (transparente)  &nbsp;&nbsp;"
+              f"<span style='color:{COLOR_GOLD};'>┄┄</span> Níveis institucionais"),
         font=dict(size=13,family="JetBrains Mono",color="#8a9bb5"),align="center")
     return fig
 
@@ -817,8 +948,9 @@ with col_right:
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     section("TRIPLE PRESSURE MAP  —  DEX · GEX · VANNA  (VOL opaco + OI transparente)")
-    fig_press=build_pressure_chart(df,spot)
-    st.plotly_chart(fig_press,use_container_width=True)
+    niveis_inst = calcular_niveis_institucionais(df_raw, spot, s_min, s_max, mult=float(MULTIPLICADOR_FIXO))
+    fig_press = build_pressure_chart(df, spot, niveis=niveis_inst)
+    st.plotly_chart(fig_press, use_container_width=True)
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     section("MOMENTUM REAL — VOL/OI  (urgência do fluxo por strike)")
