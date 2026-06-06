@@ -478,16 +478,16 @@ def calcular_niveis_institucionais(df_raw, spot, s_min, s_max, mult=100.0):
     return {
         # GEX subplot (col 2)
         "VOL Trigger":          _safe(vol_trigger),
-        "Γ+ OI":                _safe(gamma_pos_oi),
-        "Γ- OI | VOL Attack":   _safe(gamma_neg_oi),
-        "Γ+ Vol":               _safe(per["GEX_VOL"].idxmax()),
-        "Γ- Vol":               _safe(per["GEX_VOL"].idxmin()),
+        "Gamma Pos. OI":                _safe(gamma_pos_oi),
+        "Gamma Neg. OI | VOL Attack":   _safe(gamma_neg_oi),
+        "Gamma Pos.+ Vol":               _safe(per["GEX_VOL"].idxmax()),
+        "Gamma Neg. Vol":               _safe(per["GEX_VOL"].idxmin()),
         # DEX subplot (col 1)
-        "Δ Flip":               _safe(delta_flip),
-        "Δ+ OI":                _safe(per["DEX_OI"].idxmax()),
-        "Δ- OI":                _safe(per["DEX_OI"].idxmin()),
-        "Δ+ Vol":               _safe(per["DEX_VOL"].idxmax()),
-        "Δ- Vol":               _safe(per["DEX_VOL"].idxmin()),
+        "Delta Flip":               _safe(delta_flip),
+        "Delta Pos. OI":                _safe(per["DEX_OI"].idxmax()),
+        "Nelta Neg. OI":                _safe(per["DEX_OI"].idxmin()),
+        "Delta Pos. Vol":               _safe(per["DEX_VOL"].idxmax()),
+        "Nelta Neg. Vol":               _safe(per["DEX_VOL"].idxmin()),
     }
 
 # ══════════════════════════════════════════════════════════════════
