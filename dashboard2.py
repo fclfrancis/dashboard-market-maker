@@ -3,6 +3,7 @@
 ║   DASHBOARD INSTITUCIONAL MARKET MAKER                          ║
 ║   Engine: V9  |  Layout: Futurista / Cyberpunk HUD             ║
 ║   + Níveis Institucionais no Triple Pressure Map (timesat.py)  ║
+║   + Ajuste CFD display-only                                     ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
 
@@ -242,6 +243,16 @@ def _fmt_strike(v):
     if v == 0: return "0"
     if abs(v) < 100: return f"{v:.5f}".rstrip("0").rstrip(".")
     return f"{v:,.0f}"
+
+# Offset CFD — display-only, atualizado após detecção do spot
+cfd_offset = 0.0
+
+def _fmt_strike_cfd(v):
+    """Versão de _fmt_strike que aplica o ajuste CFD (apenas display)."""
+    try:
+        return _fmt_strike(float(v) + cfd_offset)
+    except Exception:
+        return _fmt_strike(v)
 
 def parse_json(source):
     try:
@@ -506,7 +517,7 @@ def processar_inteligencia(df, spot, threshold=2.5):
             gamma_flip=k0+(k1-k0)*(-g0)/(g1-g0); break
     if gamma_flip==0.0 and not gex_by_s.empty: gamma_flip=float(gex_by_s.abs().idxmin())
     if   spot>gamma_flip and net_delta>0: stat,msg="success","🔥 ALTA CONVICÇÃO (Safe Zone) — MMs provêm liquidez para a subida."
-    elif spot<gamma_flip and net_delta>0: stat,msg="warning",f"🚀 RISCO DE SQUEEZE! MMs precisam cobrir Delta acima de {_fmt_strike(gamma_flip)}"
+    elif spot<gamma_flip and net_delta>0: stat,msg="warning",f"🚀 RISCO DE SQUEEZE! MMs precisam cobrir Delta acima de {_fmt_strike_cfd(gamma_flip)}"
     elif spot<gamma_flip and net_delta<0: stat,msg="danger","💀 CASCATA (Falling Knife) — Zona de aceleração negativa. Evite compras."
     else:                                 stat,msg="info","⚖️ MERCADO EM EQUILÍBRIO / CONSOLIDAÇÃO — Aguarde confirmação."
     return {"whales":whales,"msg":msg,"status":stat,"net_delta":net_delta,"z_score":df["z_score"]},gamma_flip
@@ -548,7 +559,7 @@ def legenda_vanna_ctx(valor,serie,strike,spot):
 # 8 · GRÁFICO TERMINAL — VOL e OI
 # ══════════════════════════════════════════════════════════════════
 def build_main_chart(df, strikes_agg, spot):
-    sy_num=sorted(df["strikePrice"].unique()); sy_lbl=[_fmt_strike(s) for s in sy_num]
+    sy_num=sorted(df["strikePrice"].unique()); sy_lbl=[_fmt_strike_cfd(s) for s in sy_num]
     num2lbl={n:l for n,l in zip(sy_num,sy_lbl)}
     oi_col="openInterest" if "openInterest" in df.columns else "volume"
     agg_cp=(df.groupby(["strikePrice","optionType"]).agg(volume=("volume","sum"),open_interest=(oi_col,"sum")).reset_index())
@@ -583,19 +594,19 @@ def build_main_chart(df, strikes_agg, spot):
             customdata=np.array(list(zip(legendas_niveis,legendas_descs,np.abs(vals_raw))))
             fig.add_trace(go.Bar(y=sy_lbl,x=vals_raw,orientation="h",marker_color=cp_colors(metric,opt),name=name,
                 customdata=customdata,hovertemplate=(f"<b>Strike: %{{y}}</b><br>{'Vol' if metric=='volume' else 'OI'}: %{{x:,.0f}}<br>──────────────────<br>%{{customdata[0]}}<br><i>%{{customdata[1]}}</i><extra>{name}</extra>")),row=1,col=col_idx)
-    spot_lbl=num2lbl.get(spot) or _fmt_strike(min(sy_num,key=lambda s:abs(s-spot)))
+    spot_lbl=num2lbl.get(spot) or _fmt_strike_cfd(min(sy_num,key=lambda s:abs(s-spot)))
     def cat_hline(lbl,color,dash,annotation,ci,width=2.0):
         xref=f"x{ci if ci>1 else ''}"; fig.add_shape(type="line",x0=0,x1=1,xref=f"{xref} domain",y0=lbl,y1=lbl,yref="y",line=dict(color=color,width=width,dash="dashdot" if dash=="longdash" else dash),row=1,col=ci)
         if annotation: fig.add_annotation(x=1,xref=f"{xref} domain",y=lbl,yref="y",text=annotation,showarrow=False,xanchor="right",yanchor="bottom",yshift=4,font=dict(color=color,size=13,family="JetBrains Mono"),row=1,col=ci)
-    cat_hline(spot_lbl,COLOR_NEON,"dash",f"SPOT {_fmt_strike(spot)}",1,width=2.5)
-    cat_hline(spot_lbl,COLOR_NEON,"dash",f"SPOT {_fmt_strike(spot)}",2,width=2.5)
+    cat_hline(spot_lbl,COLOR_NEON,"dash",f"SPOT {_fmt_strike_cfd(spot)}",1,width=2.5)
+    cat_hline(spot_lbl,COLOR_NEON,"dash",f"SPOT {_fmt_strike_cfd(spot)}",2,width=2.5)
     agg_vc=agg_cp[agg_cp["optionType"]=="Call"].set_index("strikePrice")["volume"]
     agg_vp=agg_cp[agg_cp["optionType"]=="Put"].set_index("strikePrice")["volume"]
     agg_oc=agg_cp[agg_cp["optionType"]=="Call"].set_index("strikePrice")["open_interest"]
     agg_op=agg_cp[agg_cp["optionType"]=="Put"].set_index("strikePrice")["open_interest"]
     for series,color,label,ci in [(agg_vc,COLOR_CALL,"Call Vol Wall",1),(agg_vp,COLOR_PUT,"Put Vol Wall",1),(agg_oc,COLOR_CALL,"Call OI Wall",2),(agg_op,COLOR_PUT,"Put OI Wall",2)]:
         if not series.empty:
-            sk=float(series.idxmax()); lbl=num2lbl.get(sk,_fmt_strike(sk)); cat_hline(lbl,color,"dot",label,ci)
+            sk=float(series.idxmax()); lbl=num2lbl.get(sk,_fmt_strike_cfd(sk)); cat_hline(lbl,color,"dot",label,ci)
     fig.update_layout(height=900,template="plotly_dark",barmode="relative",showlegend=False,margin=dict(t=50,b=20,l=10,r=10),
         paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,12,20,0.6)",font=dict(family="JetBrains Mono",size=13,color="#ccddf8"),
         hoverlabel=dict(font_size=14,font_family="JetBrains Mono",bgcolor="#0a1a20",bordercolor="#00ffe7"))
@@ -612,8 +623,8 @@ def build_pressure_chart(df, spot, niveis=None):
     bar_vol=(df.groupby("strikePrice").agg(dex=("dex_total","sum"),gex=("gex_total","sum"),vanna=("vanna_total","sum")).reset_index().sort_values("strikePrice"))
     bar_oi=(df.groupby("strikePrice").agg(dex_oi=("dex_oi","sum"),gex_oi=("gex_oi","sum"),vanna_oi=("vanna_oi","sum")).reset_index().sort_values("strikePrice"))
     bar5=bar_vol.merge(bar_oi,on="strikePrice",how="left").fillna(0)
-    sy_num=bar5["strikePrice"].tolist(); bar5_lbl=bar5["strikePrice"].map(_fmt_strike)
-    spot_lbl=_fmt_strike(min(sy_num,key=lambda s:abs(s-spot)))
+    sy_num=bar5["strikePrice"].tolist(); bar5_lbl=bar5["strikePrice"].map(_fmt_strike_cfd)
+    spot_lbl=_fmt_strike_cfd(min(sy_num,key=lambda s:abs(s-spot)))
 
     def build_legends(metric_vol,metric_oi,legend_fn):
         niveis_l,descs=[],[]
@@ -650,7 +661,7 @@ def build_pressure_chart(df, spot, niveis=None):
         xref=f"x{ci if ci>1 else ''}"
         fig.add_shape(type="line",x0=0,x1=1,xref=f"{xref} domain",y0=spot_lbl,y1=spot_lbl,yref="y",
             line=dict(color=COLOR_NEON,width=1.5,dash="dash"),row=1,col=ci)
-        if ci==1: fig.add_annotation(x=1,xref=f"{xref} domain",y=spot_lbl,yref="y",text=f"  SPOT {_fmt_strike(spot)}",showarrow=False,xanchor="left",font=dict(color=COLOR_NEON,size=13,family="JetBrains Mono"),row=1,col=ci)
+        if ci==1: fig.add_annotation(x=1,xref=f"{xref} domain",y=spot_lbl,yref="y",text=f"  SPOT {_fmt_strike_cfd(spot)}",showarrow=False,xanchor="left",font=dict(color=COLOR_NEON,size=13,family="JetBrains Mono"),row=1,col=ci)
 
     fig.update_layout(height=700,template="plotly_dark",paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,12,20,0.6)",
         barmode="overlay",showlegend=False,margin=dict(t=90,b=20,l=10,r=10),font=dict(family="JetBrains Mono",size=13,color="#ccddf8"),
@@ -677,7 +688,7 @@ def build_pressure_chart(df, spot, niveis=None):
                 v = niveis.get(k)
                 if v is None: continue
                 closest = min(sy_num, key=lambda s: abs(s - v))
-                lbl = _fmt_strike(closest)
+                lbl = _fmt_strike_cfd(closest)
                 buckets.setdefault(lbl, []).append((k, v))
 
             xref = f"x{col_idx if col_idx>1 else ''}"
@@ -688,11 +699,11 @@ def build_pressure_chart(df, spot, niveis=None):
                     row=1, col=col_idx)
                 if len(items) == 1:
                     name, raw = items[0]
-                    txt = f"{name} · {_fmt_strike(raw)}"
+                    txt = f"{name} · {_fmt_strike_cfd(raw)}"
                 else:
                     nomes = " | ".join(n for n, _ in items)
                     raw_med = float(np.mean([r for _, r in items]))
-                    txt = f"{nomes} · {_fmt_strike(raw_med)}"
+                    txt = f"{nomes} · {_fmt_strike_cfd(raw_med)}"
                 fig.add_annotation(x=0.99, xref=f"{xref} domain", y=lbl, yref="y",
                     text=txt, showarrow=False, xanchor="right", yanchor="middle",
                     font=dict(color=COLOR_GOLD, size=10, family="JetBrains Mono"),
@@ -745,9 +756,9 @@ with st.sidebar:
     _pcp_sb=st.session_state.get(_sb_key,{})
     if _pcp_sb.get("spot_implicito",0)>0:
         st.markdown("<div style='color:#fa0;font-size:13px;letter-spacing:2px;'>⚡ PARIDADE PUT-CALL</div>", unsafe_allow_html=True)
-        st.markdown(f"<div style='font-family:JetBrains Mono,monospace;font-size:15px;color:#f0c040;text-shadow:0 0 6px #fa0;margin:4px 0 2px;'>F = <b>{_fmt_strike(_pcp_sb['spot_implicito'])}</b></div><div style='font-size:13px;color:#8a9bb5;margin-bottom:4px;'>ATM: {_fmt_strike(_pcp_sb['strike_atm'])} &nbsp;|&nbsp; Δ call: {_pcp_sb['delta_call_atm']:.4f}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-family:JetBrains Mono,monospace;font-size:15px;color:#f0c040;text-shadow:0 0 6px #fa0;margin:4px 0 2px;'>F = <b>{_fmt_strike_cfd(_pcp_sb['spot_implicito'])}</b></div><div style='font-size:13px;color:#8a9bb5;margin-bottom:4px;'>ATM: {_fmt_strike_cfd(_pcp_sb['strike_atm'])} &nbsp;|&nbsp; Δ call: {_pcp_sb['delta_call_atm']:.4f}</div>", unsafe_allow_html=True)
         if _pcp_sb.get("delta_flip_abaixo") is not None:
-            st.markdown(f"<div style='font-size:13px;color:#8a9bb5;'>Δ flip: {_fmt_strike(_pcp_sb['delta_flip_abaixo'])} → {_fmt_strike(_pcp_sb['delta_flip_acima'])}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='font-size:13px;color:#8a9bb5;'>Δ flip: {_fmt_strike_cfd(_pcp_sb['delta_flip_abaixo'])} → {_fmt_strike_cfd(_pcp_sb['delta_flip_acima'])}</div>", unsafe_allow_html=True)
         st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
 
     st.markdown("<div style='color:#0ff;font-size:13px;letter-spacing:2px;'>📏 RANGE DE STRIKES</div>", unsafe_allow_html=True)
@@ -761,6 +772,13 @@ with st.sidebar:
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     min_fin=st.number_input("💰 Vol. Financeiro Mín ($)",value=0,step=10_000,format="%d")
+
+    st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
+    spot_cfd_str = st.text_input(
+        "💱 Spot CFD (ajuste manual):",
+        value="",
+        placeholder="Ex: 27250  (vazio = sem ajuste)"
+    )
 
 # ══════════════════════════════════════════════════════════════════
 # 11 · HEADER
@@ -794,6 +812,19 @@ else: spot=_detectar_spot_pcp(df_raw) or detectar_spot(df_raw,None)
 
 if spot<=0:
     st.error("❌ Não foi possível detectar o Spot. Informe manualmente na sidebar."); st.stop()
+
+# ── Offset CFD (display-only) ──
+try:
+    if spot_cfd_str.strip():
+        _spot_cfd_val = float(spot_cfd_str.replace(",", "."))
+        if _spot_cfd_val > 0:
+            cfd_offset = _spot_cfd_val - spot
+        else:
+            cfd_offset = 0.0
+    else:
+        cfd_offset = 0.0
+except Exception:
+    cfd_offset = 0.0
 
 df=calcular_v9(df_raw,spot,s_min,s_max,min_fin=float(min_fin),mult=float(MULTIPLICADOR_FIXO))
 if df is None or df.empty:
@@ -834,24 +865,25 @@ col_left,col_right=st.columns([3,7])
 with col_left:
     st.markdown(alert_box(res_intel["msg"],res_intel["status"]), unsafe_allow_html=True)
     pcp_res=calcular_pcp_detalhado(df_raw); pcp_spot=pcp_res["spot_implicito"]
-    pcp_label=_fmt_strike(pcp_spot) if pcp_spot>0 else "—"
+    pcp_label=_fmt_strike_cfd(pcp_spot) if pcp_spot>0 else "—"
     spot_source="PCP" if(modo_spot=="Automático" and pcp_spot>0) else("Manual" if modo_spot=="Manual" else "Δ0.5")
-    st.markdown(f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;color:#0ff;margin:12px 0 2px;letter-spacing:1px;text-shadow:0 0 5px #0ff;'>⚡ SPOT: <b>{_fmt_strike(spot)}</b><span style='font-size:13px;color:#8a9bb5;margin-left:8px;'>({spot_source})</span></div>", unsafe_allow_html=True)
+    cfd_tag = f"<span style='font-size:11px;color:#fa0;margin-left:8px;'>+ CFD offset {cfd_offset:+.2f}</span>" if cfd_offset != 0.0 else ""
+    st.markdown(f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;color:#0ff;margin:12px 0 2px;letter-spacing:1px;text-shadow:0 0 5px #0ff;'>⚡ SPOT: <b>{_fmt_strike_cfd(spot)}</b><span style='font-size:13px;color:#8a9bb5;margin-left:8px;'>({spot_source})</span>{cfd_tag}</div>", unsafe_allow_html=True)
 
     if pcp_spot>0:
         with st.expander("📐 Paridade Put-Call — Cálculo Detalhado",expanded=False):
             diff_str=f"+{pcp_res['diferenca']:.3f}" if pcp_res['diferenca']>=0 else f"{pcp_res['diferenca']:.3f}"
-            st.markdown(f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;'><div style='font-size:13px;color:#fa0;letter-spacing:2px;margin-bottom:6px;'>FÓRMULA: F = K + (C − P)</div><div style='background:rgba(240,192,64,0.07);border:1px solid rgba(240,192,64,0.3);border-left:4px solid #f0c040;border-radius:8px;padding:10px 14px;margin-bottom:8px;'><div style='font-size:13px;color:#8a9bb5;margin-bottom:4px;'>Strike ATM: <b style='color:#f0c040;'>{_fmt_strike(pcp_res['strike_atm'])}</b> &nbsp;|&nbsp; Δ call: <b style='color:#f0c040;'>{pcp_res['delta_call_atm']:.4f}</b></div><div style='font-size:13px;color:#8a9bb5;'>C mid = ({pcp_res['c_bid']:.2f} + {pcp_res['c_ask']:.2f}) / 2 = <b style='color:#ccddf8;'>{pcp_res['c_mid']:.3f}</b></div><div style='font-size:13px;color:#8a9bb5;'>P mid = ({pcp_res['p_bid']:.2f} + {pcp_res['p_ask']:.2f}) / 2 = <b style='color:#ccddf8;'>{pcp_res['p_mid']:.3f}</b></div><div style='font-size:13px;color:#8a9bb5;margin-top:4px;'>F = {_fmt_strike(pcp_res['strike_atm'])} + ({pcp_res['c_mid']:.3f} − {pcp_res['p_mid']:.3f}) = {_fmt_strike(pcp_res['strike_atm'])} {diff_str} = <b style='color:#f0c040;font-size:14px;text-shadow:0 0 6px #fa0;'>{pcp_label}</b></div></div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;'><div style='font-size:13px;color:#fa0;letter-spacing:2px;margin-bottom:6px;'>FÓRMULA: F = K + (C − P)</div><div style='background:rgba(240,192,64,0.07);border:1px solid rgba(240,192,64,0.3);border-left:4px solid #f0c040;border-radius:8px;padding:10px 14px;margin-bottom:8px;'><div style='font-size:13px;color:#8a9bb5;margin-bottom:4px;'>Strike ATM: <b style='color:#f0c040;'>{_fmt_strike_cfd(pcp_res['strike_atm'])}</b> &nbsp;|&nbsp; Δ call: <b style='color:#f0c040;'>{pcp_res['delta_call_atm']:.4f}</b></div><div style='font-size:13px;color:#8a9bb5;'>C mid = ({pcp_res['c_bid']:.2f} + {pcp_res['c_ask']:.2f}) / 2 = <b style='color:#ccddf8;'>{pcp_res['c_mid']:.3f}</b></div><div style='font-size:13px;color:#8a9bb5;'>P mid = ({pcp_res['p_bid']:.2f} + {pcp_res['p_ask']:.2f}) / 2 = <b style='color:#ccddf8;'>{pcp_res['p_mid']:.3f}</b></div><div style='font-size:13px;color:#8a9bb5;margin-top:4px;'>F = {_fmt_strike_cfd(pcp_res['strike_atm'])} + ({pcp_res['c_mid']:.3f} − {pcp_res['p_mid']:.3f}) = {_fmt_strike_cfd(pcp_res['strike_atm'])} {diff_str} = <b style='color:#f0c040;font-size:14px;text-shadow:0 0 6px #fa0;'>{pcp_label}</b></div></div>", unsafe_allow_html=True)
             flip_ab=pcp_res["delta_flip_abaixo"]; flip_ac=pcp_res["delta_flip_acima"]
             if flip_ab is not None:
-                st.markdown(f"<div style='background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2);border-left:4px solid #0ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-family:JetBrains Mono,monospace;font-size:13px;'><span style='color:#0ff;'>⚡ VALIDAÇÃO DELTA:</span> Strike <b style='color:#f0c040;'>{_fmt_strike(flip_ab)}</b> (Δ≥0.50) → <b style='color:#f0c040;'>{_fmt_strike(flip_ac)}</b> (Δ&lt;0.50) &nbsp;→&nbsp; <span style='color:#0f0;'>spot entre {_fmt_strike(flip_ab)} e {_fmt_strike(flip_ac)}</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2);border-left:4px solid #0ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-family:JetBrains Mono,monospace;font-size:13px;'><span style='color:#0ff;'>⚡ VALIDAÇÃO DELTA:</span> Strike <b style='color:#f0c040;'>{_fmt_strike_cfd(flip_ab)}</b> (Δ≥0.50) → <b style='color:#f0c040;'>{_fmt_strike_cfd(flip_ac)}</b> (Δ&lt;0.50) &nbsp;→&nbsp; <span style='color:#0f0;'>spot entre {_fmt_strike_cfd(flip_ab)} e {_fmt_strike_cfd(flip_ac)}</span></div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div style='font-size:13px;color:#8a9bb5;margin-bottom:8px;'>⚡ Flip de delta não detectado no range atual.</div>", unsafe_allow_html=True)
             if pcp_res["tabela"]:
                 rows_pcp=""
                 for e in pcp_res["tabela"]:
                     is_atm=e["K"]==pcp_res["strike_atm"]; row_style="background:rgba(240,192,64,0.08);" if is_atm else ""; star=" ★" if is_atm else ""
-                    rows_pcp+=(f"<tr style='{row_style}'><td class='text-gold'>{_fmt_strike(e['K'])}{star}</td><td style='color:#ccddf8;'>{e['c_bid']:.2f}</td><td style='color:#ccddf8;'>{e['c_ask']:.2f}</td><td style='color:#f0c040;font-weight:bold;'>{e['delta_call']:.4f}</td><td style='color:#ccddf8;'>{e['p_bid']:.2f}</td><td style='color:#ccddf8;'>{e['p_ask']:.2f}</td><td style='color:#0ff;font-weight:bold;'>{e['F']:.2f}</td></tr>")
+                    rows_pcp+=(f"<tr style='{row_style}'><td class='text-gold'>{_fmt_strike_cfd(e['K'])}{star}</td><td style='color:#ccddf8;'>{e['c_bid']:.2f}</td><td style='color:#ccddf8;'>{e['c_ask']:.2f}</td><td style='color:#f0c040;font-weight:bold;'>{e['delta_call']:.4f}</td><td style='color:#ccddf8;'>{e['p_bid']:.2f}</td><td style='color:#ccddf8;'>{e['p_ask']:.2f}</td><td style='color:#0ff;font-weight:bold;'>{e['F']:.2f}</td></tr>")
                 st.markdown(f"<div style='overflow-x:auto;'><table class='hud-table'><thead><tr><th>STRIKE</th><th>C BID</th><th>C ASK</th><th>Δ CALL</th><th>P BID</th><th>P ASK</th><th>F IMP.</th></tr></thead><tbody>{rows_pcp}</tbody></table><div style='font-size:11px;color:#4a7a75;margin-top:4px;'>★ ATM selecionado</div></div>", unsafe_allow_html=True)
 
     k1,k2=st.columns(2)
@@ -878,7 +910,7 @@ with col_left:
     gw_acao,gw_cor,gw_desc,gw_val,gw_dist=legenda_gwall(gamma_wall,gex_wall_val,spot)
     gf_desc,gf_dist=legenda_gflip(g_flip,spot); mv_desc,mv_dist=legenda_maxvol(max_vol_s,spot)
     gex_wall_sign="Long" if gex_wall_val>=0 else "Short"
-    st.markdown(f"<div class='dashboard-card'><table class='hud-table'><tr><th>NÍVEL</th><th>STRIKE</th><th>VALOR</th><th>AÇÃO</th><th>DIST</th></tr><tr title='{gw_desc}' style='border-bottom:1px solid rgba(255,255,255,0.05);cursor:help;'><td style='font-size:13px;'>🧱 Gamma Wall</td><td class='text-gold'><b>{_fmt_strike(gamma_wall)}</b></td><td style='color:#0ff;font-size:13px;'>{gex_wall_sign} {gw_val}</td><td style='color:{gw_cor};font-size:13px;'>{gw_acao}</td><td style='color:#8a9bb5;font-size:13px;'>{gw_dist}</td></tr><tr title='{gf_desc}' style='border-bottom:1px solid rgba(255,255,255,0.05);cursor:help;'><td style='font-size:13px;'>⚡ Gamma Flip</td><td class='text-gold'><b>{_fmt_strike(g_flip)}</b></td><td class='text-dim' style='font-size:13px;'>Zero-crossing</td><td style='color:#ffa500;font-size:13px;'>🔄 Transição</td><td style='color:#8a9bb5;font-size:13px;'>{gf_dist}</td></tr><tr title='{mv_desc}' style='cursor:help;'><td style='font-size:13px;'>🎯 Max Volume</td><td class='text-gold'><b>{_fmt_strike(max_vol_s)}</b></td><td class='text-dim' style='font-size:13px;'>Pico</td><td style='color:#ffd700;font-size:13px;'>🧲 Magnético</td><td style='color:#8a9bb5;font-size:13px;'>{mv_dist}</td></tr></table><div style='font-size:11px;color:#3a7a8a;margin-top:6px;font-family:JetBrains Mono;'>💡 Passe o mouse nas linhas para ver a interpretação operacional.</div></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='dashboard-card'><table class='hud-table'><tr><th>NÍVEL</th><th>STRIKE</th><th>VALOR</th><th>AÇÃO</th><th>DIST</th></tr><tr title='{gw_desc}' style='border-bottom:1px solid rgba(255,255,255,0.05);cursor:help;'><td style='font-size:13px;'>🧱 Gamma Wall</td><td class='text-gold'><b>{_fmt_strike_cfd(gamma_wall)}</b></td><td style='color:#0ff;font-size:13px;'>{gex_wall_sign} {gw_val}</td><td style='color:{gw_cor};font-size:13px;'>{gw_acao}</td><td style='color:#8a9bb5;font-size:13px;'>{gw_dist}</td></tr><tr title='{gf_desc}' style='border-bottom:1px solid rgba(255,255,255,0.05);cursor:help;'><td style='font-size:13px;'>⚡ Gamma Flip</td><td class='text-gold'><b>{_fmt_strike_cfd(g_flip)}</b></td><td class='text-dim' style='font-size:13px;'>Zero-crossing</td><td style='color:#ffa500;font-size:13px;'>🔄 Transição</td><td style='color:#8a9bb5;font-size:13px;'>{gf_dist}</td></tr><tr title='{mv_desc}' style='cursor:help;'><td style='font-size:13px;'>🎯 Max Volume</td><td class='text-gold'><b>{_fmt_strike_cfd(max_vol_s)}</b></td><td class='text-dim' style='font-size:13px;'>Pico</td><td style='color:#ffd700;font-size:13px;'>🧲 Magnético</td><td style='color:#8a9bb5;font-size:13px;'>{mv_dist}</td></tr></table><div style='font-size:11px;color:#3a7a8a;margin-top:6px;font-family:JetBrains Mono;'>💡 Passe o mouse nas linhas para ver a interpretação operacional.</div></div>", unsafe_allow_html=True)
 
     section("ZONAS DE IMPACTO DELTA")
     ri=""
@@ -886,12 +918,12 @@ with col_left:
         sk=r["strikePrice"]; dist=abs(sk-spot)/spot*100
         if sk>spot: tipo_lbl="<span style='color:#FF4444;font-size:13px;'>⛔ Resistência</span>"; motivo="Call OTM acima do spot. MM vai vender delta se preço subir até aqui."
         else: tipo_lbl="<span style='color:#00FF00;font-size:13px;'>🟢 Suporte</span>"; motivo="Call ITM abaixo do spot. MM já comprou futuros para hedge."
-        ri+=f"<tr title='{motivo}' style='cursor:help;'><td>{tipo_lbl}</td><td class='text-gold' style='font-size:13px;'>{_fmt_strike(sk)}C</td><td style='color:#8a9bb5;font-size:13px;'>{dist:.1f}%</td></tr>"
+        ri+=f"<tr title='{motivo}' style='cursor:help;'><td>{tipo_lbl}</td><td class='text-gold' style='font-size:13px;'>{_fmt_strike_cfd(sk)}C</td><td style='color:#8a9bb5;font-size:13px;'>{dist:.1f}%</td></tr>"
     for _,r in ip_df.iterrows():
         sk=r["strikePrice"]; dist=abs(sk-spot)/spot*100
         if sk<spot: tipo_lbl="<span style='color:#00FF00;font-size:13px;'>🟢 Suporte</span>"; motivo="Put OTM abaixo do spot. MM vai comprar futuros se preço cair até aqui."
         else: tipo_lbl="<span style='color:#FF4444;font-size:13px;'>⛔ Pressão Vend.</span>"; motivo="Put ITM acima do spot. MM já vendeu futuros para hedge."
-        ri+=f"<tr title='{motivo}' style='cursor:help;'><td>{tipo_lbl}</td><td class='text-gold' style='font-size:13px;'>{_fmt_strike(sk)}P</td><td style='color:#8a9bb5;font-size:13px;'>{dist:.1f}%</td></tr>"
+        ri+=f"<tr title='{motivo}' style='cursor:help;'><td>{tipo_lbl}</td><td class='text-gold' style='font-size:13px;'>{_fmt_strike_cfd(sk)}P</td><td style='color:#8a9bb5;font-size:13px;'>{dist:.1f}%</td></tr>"
     dex_sorted_df=bar_agg.sort_values("strikePrice"); delta_flip_strike=None
     for i in range(len(dex_sorted_df)-1):
         if dex_sorted_df.iloc[i]["dex_total"]*dex_sorted_df.iloc[i+1]["dex_total"]<0:
@@ -900,7 +932,7 @@ with col_left:
     if delta_flip_strike is not None:
         dist_flip=abs(delta_flip_strike-spot)/spot*100; lado_flip="acima do spot" if delta_flip_strike>spot else "abaixo do spot"
         msg_flip="MM passa de vendido para comprado acima desse nível." if delta_flip_strike>spot else "MM passa de comprado para vendido abaixo desse nível."
-        delta_flip_html=(f"<tr style='border-top:1px solid rgba(255,165,0,0.4);'><td colspan='3' style='padding-top:8px;'><span style='color:#ffa500;font-family:JetBrains Mono;font-size:13px;letter-spacing:1px;'>🔄 DELTA FLIP &nbsp;<b style='color:#fff;'>{_fmt_strike(delta_flip_strike)}</b>&nbsp;<span style='color:#8a9bb5;'>({dist_flip:.1f}% · {lado_flip})</span><br><span style='color:#8a9bb5;font-size:11px;'>Ponto onde pressão direcional muda de sinal. {msg_flip}</span></span></td></tr>")
+        delta_flip_html=(f"<tr style='border-top:1px solid rgba(255,165,0,0.4);'><td colspan='3' style='padding-top:8px;'><span style='color:#ffa500;font-family:JetBrains Mono;font-size:13px;letter-spacing:1px;'>🔄 DELTA FLIP &nbsp;<b style='color:#fff;'>{_fmt_strike_cfd(delta_flip_strike)}</b>&nbsp;<span style='color:#8a9bb5;'>({dist_flip:.1f}% · {lado_flip})</span><br><span style='color:#8a9bb5;font-size:11px;'>Ponto onde pressão direcional muda de sinal. {msg_flip}</span></span></td></tr>")
     st.markdown(f"<div class='dashboard-card'><table class='hud-table'><tr><th>TIPO</th><th>STRIKE</th><th>DIST.</th></tr>{ri}{delta_flip_html}</table><div style='font-size:11px;color:#3a7a8a;margin-top:6px;font-family:JetBrains Mono;'>💡 Passe o mouse nas linhas para ver o motivo da classificação.</div></div>", unsafe_allow_html=True)
 
     section("VANNA & VOLATILIDADE")
@@ -911,7 +943,7 @@ with col_left:
     for _,r in top_v.iterrows():
         nv,dc=legenda_vanna_ctx(r["vanna_total"],serie_vanna,r["strikePrice"],spot)
         act="COMPRA" if r["vanna_total"]>0 else "VENDE"; clr="#0f0" if r["vanna_total"]>0 else "#f44"
-        vrows+=f"<tr title='{dc}' style='cursor:help;'><td class='text-cyan' style='font-size:13px;'>🐳 {_fmt_strike(r['strikePrice'])}{r['optionType'][0]}</td><td style='color:{clr};font-weight:bold;font-size:13px;'>{act}</td><td class='text-gold' style='font-size:13px;'>{fmt_M(r['vanna_total'])}</td><td style='color:#8a9bb5;font-size:11px;'>{nv}</td></tr>"
+        vrows+=f"<tr title='{dc}' style='cursor:help;'><td class='text-cyan' style='font-size:13px;'>🐳 {_fmt_strike_cfd(r['strikePrice'])}{r['optionType'][0]}</td><td style='color:{clr};font-weight:bold;font-size:13px;'>{act}</td><td class='text-gold' style='font-size:13px;'>{fmt_M(r['vanna_total'])}</td><td style='color:#8a9bb5;font-size:11px;'>{nv}</td></tr>"
     st.markdown(f"<div class='dashboard-card'><table class='hud-table'><tr><th>STRIKE</th><th>AÇÃO IV↑</th><th>FLUXO</th><th>NÍVEL</th></tr>{vrows}</table><div style='font-size:11px;color:#3a7a8a;margin-top:6px;font-family:JetBrains Mono;'>💡 Passe o mouse nas linhas para ver a interpretação.</div></div>", unsafe_allow_html=True)
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
@@ -930,7 +962,7 @@ with col_left:
     notas=[]
     if net_gex<0 and net_delta<0: notas.append(("danger","⚠ PERIGO: MM em Short Gamma com bias baixista → Queda Acelerada"))
     if net_gex>0 and net_delta>0: notas.append(("warning","✅ ANCORAGEM: Long Gamma com bias altista → Topo em formação"))
-    if g_flip>0 and abs(g_flip-spot)/spot<0.005: notas.append(("info",f"🎯 ZONA CRÍTICA: Spot próximo ao Gamma Flip ({_fmt_strike(g_flip)})"))
+    if g_flip>0 and abs(g_flip-spot)/spot<0.005: notas.append(("info",f"🎯 ZONA CRÍTICA: Spot próximo ao Gamma Flip ({_fmt_strike_cfd(g_flip)})"))
     if notas:
         section("NOTAS DE CAMPO")
         for kind,msg_nota in notas: st.markdown(alert_box(msg_nota,kind), unsafe_allow_html=True)
@@ -990,7 +1022,7 @@ with col_right:
             )
             if _df_v.empty: continue
             fig_mom.add_trace(go.Bar(
-                x=_df_v["strikePrice"], y=_df_v["Vol_OI"],
+                x=_df_v["strikePrice"] + cfd_offset, y=_df_v["Vol_OI"],
                 marker_color=_color, marker_line_width=0, name=_label,
                 customdata=np.stack([_df_v["nivel"],_df_v["comportamento"]],axis=1),
                 hovertemplate=(
@@ -1006,9 +1038,9 @@ with col_right:
         fig_mom.add_hline(y=1.0, line_dash="dot", line_color="#ffffff", line_width=1, opacity=0.35,
             annotation_text="neutro 1.0x", annotation_position="bottom right",
             annotation_font=dict(color="#888",size=10,family="JetBrains Mono"))
-        fig_mom.add_vline(x=spot, line_dash="dot", line_color=COLOR_NEON, line_width=1.5)
-        fig_mom.add_annotation(x=spot, y=1.0, xref="x", yref="paper",
-            text=f"SPOT {_fmt_strike(spot)}", showarrow=False, yshift=8,
+        fig_mom.add_vline(x=spot + cfd_offset, line_dash="dot", line_color=COLOR_NEON, line_width=1.5)
+        fig_mom.add_annotation(x=spot + cfd_offset, y=1.0, xref="x", yref="paper",
+            text=f"SPOT {_fmt_strike_cfd(spot)}", showarrow=False, yshift=8,
             font=dict(color=COLOR_NEON,size=10,family="JetBrains Mono"), xanchor="center")
         fig_mom.update_layout(
             template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(8,12,20,0.6)",
@@ -1030,7 +1062,7 @@ with col_right:
                 f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;"
                 f"color:{_mx_cor};padding:6px 10px;background:rgba(255,165,0,0.05);"
                 f"border-left:3px solid {_mx_cor};border-radius:4px;margin-top:4px;'>"
-                f"⚡ Máx. urgência: <b>Strike {_fmt_strike(_mx['strikePrice'])}</b> · "
+                f"⚡ Máx. urgência: <b>Strike {_fmt_strike_cfd(_mx['strikePrice'])}</b> · "
                 f"{_mx['optionType']} · <b>{_mx['Vol_OI']:.2f}x</b> · {_mx['nivel']}</div>",
                 unsafe_allow_html=True,
             )
@@ -1069,14 +1101,14 @@ if not res_intel["whales"].empty:
         if not w_calls_agg.empty:
             for _,row in w_calls_agg.iterrows():
                 sk=row["strikePrice"]; acao,cor,desc,dist_fmt=legenda_whale_ctx(sk,"Call",spot)
-                st.markdown(f"<div class='whale-card' title='{desc}'><b class='text-cyan' style='font-size:13px;'>{_fmt_strike(sk)}C</b> <span style='color:{cor};font-size:13px;font-weight:bold;'>{acao}</span><span class='text-dim' style='float:right;font-size:13px;'>{dist_fmt} do spot</span><br><span class='text-green' style='font-size:13px;'>z={row['z_score']:.1f}</span><span class='text-dim' style='font-size:13px;'> &nbsp;·&nbsp; ΔFlow {fmt_M(row['d_flow'])} &nbsp;·&nbsp; Vol {row['volume']:,.0f} &nbsp;·&nbsp; Fin {fmt_M(row.get('financial_flow',0))}</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='whale-card' title='{desc}'><b class='text-cyan' style='font-size:13px;'>{_fmt_strike_cfd(sk)}C</b> <span style='color:{cor};font-size:13px;font-weight:bold;'>{acao}</span><span class='text-dim' style='float:right;font-size:13px;'>{dist_fmt} do spot</span><br><span class='text-green' style='font-size:13px;'>z={row['z_score']:.1f}</span><span class='text-dim' style='font-size:13px;'> &nbsp;·&nbsp; ΔFlow {fmt_M(row['d_flow'])} &nbsp;·&nbsp; Vol {row['volume']:,.0f} &nbsp;·&nbsp; Fin {fmt_M(row.get('financial_flow',0))}</span></div>", unsafe_allow_html=True)
         else: st.caption("Sem anomalias.")
     with wc2:
         st.markdown("<div style='color:#f44;font-size:13px;font-weight:bold;letter-spacing:1px;margin-bottom:8px;font-family:JetBrains Mono,monospace;'>🔴 PUTS — IMPACTO MM</div>", unsafe_allow_html=True)
         if not w_puts_agg.empty:
             for _,row in w_puts_agg.iterrows():
                 sk=row["strikePrice"]; acao,cor,desc,dist_fmt=legenda_whale_ctx(sk,"Put",spot)
-                st.markdown(f"<div class='whale-card' title='{desc}'><b class='text-cyan' style='font-size:13px;'>{_fmt_strike(sk)}P</b> <span style='color:{cor};font-size:13px;font-weight:bold;'>{acao}</span><span class='text-dim' style='float:right;font-size:13px;'>{dist_fmt} do spot</span><br><span class='text-red' style='font-size:13px;'>z={row['z_score']:.1f}</span><span class='text-dim' style='font-size:13px;'> &nbsp;·&nbsp; ΔFlow {fmt_M(abs(row['d_flow']))} &nbsp;·&nbsp; Vol {row['volume']:,.0f} &nbsp;·&nbsp; Fin {fmt_M(row.get('financial_flow',0))}</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='whale-card' title='{desc}'><b class='text-cyan' style='font-size:13px;'>{_fmt_strike_cfd(sk)}P</b> <span style='color:{cor};font-size:13px;font-weight:bold;'>{acao}</span><span class='text-dim' style='float:right;font-size:13px;'>{dist_fmt} do spot</span><br><span class='text-red' style='font-size:13px;'>z={row['z_score']:.1f}</span><span class='text-dim' style='font-size:13px;'> &nbsp;·&nbsp; ΔFlow {fmt_M(abs(row['d_flow']))} &nbsp;·&nbsp; Vol {row['volume']:,.0f} &nbsp;·&nbsp; Fin {fmt_M(row.get('financial_flow',0))}</span></div>", unsafe_allow_html=True)
         else: st.caption("Sem anomalias.")
 
 
