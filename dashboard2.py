@@ -777,7 +777,7 @@ with st.sidebar:
     spot_cfd_str = st.text_input(
         "💱 Spot CFD (ajuste manual):",
         value="",
-        placeholder="Ex: 27250  (vazio = sem ajuste)"
+        placeholder="Ex: 4200  (vazio = sem ajuste)"
     )
 
 # ══════════════════════════════════════════════════════════════════
