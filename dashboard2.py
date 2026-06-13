@@ -6,7 +6,6 @@
 ║   + Ajuste CFD display-only                                     ║
 ╚══════════════════════════════════════════════════════════════════╝
 """
-
 import json, os, re, math, glob, io
 import requests
 import numpy as np
@@ -27,6 +26,27 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 st_autorefresh(interval=60_000, key="mm_refresh")
+
+# ============================================================
+# Esconde ícone GitHub / Fork da toolbar do Streamlit Cloud
+# ============================================================
+st.markdown("""
+<style>
+    [data-testid="stToolbarActions"] { display: none !important; }
+    [data-testid="stAppDeployButton"] { display: none !important; }
+    .stAppDeployButton { display: none !important; }
+    .stAppToolbar a[href*="github"] { display: none !important; }
+    .stAppToolbar [kind="header"] { display: none !important; }
+    header a[href*="github.com"],
+    [data-testid="stHeader"] a[href*="github.com"],
+    [data-testid="stDecoration"] a[href*="github.com"] { 
+        display: none !important; 
+    }
+    [data-testid="stToolbar"] > div:has(a[href*="github"]) { 
+        display: none !important; 
+    }
+</style>
+""", unsafe_allow_html=True)
 
 HUD_CSS = """
 <style>
