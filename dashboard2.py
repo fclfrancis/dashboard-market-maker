@@ -1123,7 +1123,801 @@ if not res_intel["whales"].empty:
                 sk=row["strikePrice"]; acao,cor,desc,dist_fmt=legenda_whale_ctx(sk,"Put",spot)
                 st.markdown(f"<div class='whale-card' title='{desc}'><b class='text-cyan' style='font-size:13px;'>{_fmt_strike_cfd(sk)}P</b> <span style='color:{cor};font-size:13px;font-weight:bold;'>{acao}</span><span class='text-dim' style='float:right;font-size:13px;'>{dist_fmt} do spot</span><br><span class='text-red' style='font-size:13px;'>z={row['z_score']:.1f}</span><span class='text-dim' style='font-size:13px;'> &nbsp;·&nbsp; ΔFlow {fmt_M(abs(row['d_flow']))} &nbsp;·&nbsp; Vol {row['volume']:,.0f} &nbsp;·&nbsp; Fin {fmt_M(row.get('financial_flow',0))}</span></div>", unsafe_allow_html=True)
         else: st.caption("Sem anomalias.")
+# ══════════════════════════════════════════════════════════════════
+# 17 · GERADOR DE INDICADOR TRADINGVIEW (PINE SCRIPT)
+# ──────────────────────────────────────────────────────────────────
+# Anexar ao FINAL dos dashboards NQ / SP500 / GLD,
+# logo após o "RADAR INSTITUCIONAL" e ANTES do rodapé.
+#
+# Reaproveita variáveis já em escopo:
+#   • df_raw    — DataFrame parseado bruto
+#   • df        — output de calcular_v9 (já filtrado pela sidebar)
+#   • spot      — spot detectado em USD
+#   • cfd_offset — offset display-only (CFD - implied)
+#   • momento   — snapshot
+#   • MULTIPLICADOR_FIXO
+# ══════════════════════════════════════════════════════════════════
 
+from collections import defaultdict
+
+# ─────────────────────────────────────────────────────────────────
+# 17.0 · CONFIGURAÇÃO POR DASHBOARD  ← AJUSTAR APENAS ESTA LINHA
+# ─────────────────────────────────────────────────────────────────
+_PINE_ATIVO = "NASDAQ"   # "NASDAQ" | "SP500" | "GOLD"
+
+_PINE_CONFIGS = {
+    "NASDAQ": dict(
+        nome              = "NASDAQ",
+        tickers           = ["US100", "USATECM2026", "USTEC", "MNQ1!", "NQ1!"],
+        filename          = "Gamma Levels NASDAQ.txt",
+        meia_altura       = 10,         # meia-altura barras Pine (em USD)
+        offset_split      = 25,         # offset vertical quando >3 niveis no mesmo strike
+        win_focus_pct     = 0.02,       # ±2% do spot
+    ),
+    "SP500": dict(
+        nome              = "SP500",
+        tickers           = ["US500", "ES1!", "MES1!", "USA500M2026"],
+        filename          = "Gamma Levels SP500.txt",
+        meia_altura       = 2,
+        offset_split      = 5,
+        win_focus_pct     = 0.02,
+    ),
+    "GOLD": dict(
+        nome              = "OURO",
+        tickers           = ["GOLD", "XAUUSD", "GCZ2025", "MGCZ2025", "GC1!", "MGC1!"],
+        filename          = "Gamma Levels OURO.txt",
+        meia_altura       = 1,
+        offset_split      = 2,
+        win_focus_pct     = 0.02,
+    ),
+}
+_CFG = _PINE_CONFIGS[_PINE_ATIVO]
+
+
+# ─────────────────────────────────────────────────────────────────
+# 17.1 · TEMPLATE PINE SCRIPT (parametrizado)
+# ─────────────────────────────────────────────────────────────────
+_PINE_TEMPLATE = r"""//@version=6
+indicator('GAMMA-LEVELS/GEX/DEX – __ATIVO_NOME__', overlay=true, max_bars_back=1000, max_labels_count=500, max_lines_count=500, max_boxes_count=1000)
+
+// ===============================================
+// VARIÁVEIS GLOBAIS
+// ===============================================
+var line[]  lines  = array.new_line()
+var label[] labels = array.new_label()
+var box[]   boxes  = array.new_box()
+
+// ===============================================
+// PARÂMETROS VISUAIS — GEX/Volume (G/V)
+// ===============================================
+grpGV = "Visual - GEX/Volume (G/V)"
+gv_escala_maxima = input.float(50.0, "Escala Máxima das Barras (G/V)", group=grpGV)
+gv_offset_barras = input.int(-50, "Distância horizontal (G/V)", group=grpGV, tooltip="Distância a partir da borda esquerda. Positivo = direita do left_index.")
+gv_dist_y        = input.float(__MEIA_ALTURA__, "Meia-altura da barra G/V (USD)", group=grpGV, tooltip="Metade da altura de cada barra em USD do __ATIVO_NOME__.")
+gv_opacidade     = input.int(20, "Opacidade (G/V)", minval=0, maxval=100, group=grpGV)
+gv_cor_net_pos   = input.color(color.rgb(131, 20, 196), "Cor NET GEX + (esquerda)", group=grpGV)
+gv_cor_net_neg   = input.color(color.new(#ea0c0c, 0),   "Cor NET GEX - (esquerda)", group=grpGV)
+gv_cor_vol_call  = input.color(color.new(color.red, 0),   "Cor Volume CALL (direita)", group=grpGV)
+gv_cor_vol_put   = input.color(color.new(color.green, 0), "Cor Volume PUT (direita)", group=grpGV)
+gv_min_volume    = input.float(0.0, "Volume mínimo por strike (G/V)", minval=0, group=grpGV)
+
+// ===============================================
+// PARÂMETROS VISUAIS — DEX (Δ)
+// ===============================================
+grpDEX = "Visual - DEX (Δ)"
+dex_escala_maxima = input.float(50.0, "Escala Máxima das Barras (Δ)", group=grpDEX)
+dex_offset_barras = input.int(125, "Distância horizontal (Δ)", group=grpDEX, tooltip="Distância a partir da borda esquerda.")
+dex_dist_y        = input.float(__MEIA_ALTURA__, "Meia-altura da barra DEX (USD)", group=grpDEX, tooltip="Metade da altura de cada barra em USD do __ATIVO_NOME__.")
+dex_opacidade     = input.int(20, "Transparência (Δ)", minval=0, maxval=100, group=grpDEX)
+dex_cor_delta_pos = input.color(color.rgb(20, 160, 60),  "Cor Δ POSITIVO", group=grpDEX)
+dex_cor_delta_neg = input.color(color.rgb(234, 12, 12),  "Cor Δ NEGATIVO", group=grpDEX)
+
+// ===============================================
+// PARÂMETROS VISUAIS — Camada OI (Transparente)
+// ===============================================
+grpOI = "Visual - Camada OI (Transparente)"
+oi_opacidade = input.int(65, "Opacidade OI (mais transparente)", minval=0, maxval=100, group=grpOI)
+
+// ===============================================
+// FUNÇÕES AUXILIARES
+// ===============================================
+f_ts_brt(y, m, d, hh, mm) =>
+    timestamp("America/Sao_Paulo", y, m, d, hh, mm)
+
+get_open_day_window() =>
+    yBR = year(time, "America/Sao_Paulo")
+    mBR = month(time, "America/Sao_Paulo")
+    dBR = dayofmonth(time, "America/Sao_Paulo")
+    todayOpenBR = f_ts_brt(yBR, mBR, dBR, 19, 0)
+    lastOpenTs  = time >= todayOpenBR ? todayOpenBR : (todayOpenBR - 24 * 60 * 60 * 1000)
+    dayEnd      = time
+    [lastOpenTs, dayEnd]
+
+getLineStyle(styleStr) =>
+    styleStr == "Sólido" ? line.style_solid : styleStr == "Tracejado" ? line.style_dashed : line.style_dotted
+
+clear_objects() =>
+    for l in lines
+        line.delete(l)
+    array.clear(lines)
+    for lb in labels
+        label.delete(lb)
+    array.clear(labels)
+
+create_indicator(name, yValue, lineColor, lineStyleInput) =>
+    [dayStart, dayEnd] = get_open_day_window()
+    ls = getLineStyle(lineStyleInput)
+    l  = line.new(x1=dayStart, y1=yValue, x2=dayEnd, y2=yValue, color=lineColor, width=2, style=ls, xloc=xloc.bar_time)
+    array.push(lines, l)
+    lb = label.new(x=dayEnd, y=yValue, text=name + ' (' + str.tostring(yValue) + ')', style=label.style_label_left, color=color.new(lineColor, 100), textcolor=lineColor, xloc=xloc.bar_time)
+    array.push(labels, lb)
+
+// ===============================================
+// ARRAYS — __ATIVO_NOME__ (gerados pelo dashboard)
+// ===============================================
+__ARRAYS_PLACEHOLDER__
+
+// ===============================================
+// SELEÇÃO DE ARRAYS
+// ===============================================
+ativo = syminfo.ticker
+is_active = __IS_ACTIVE_EXPR__
+
+gex_strikes        = is_active ? unified_gex_strikes        : array.new_float(0)
+gex_call_values    = is_active ? unified_gex_call_values    : array.new_float(0)
+gex_put_values     = is_active ? unified_gex_put_values     : array.new_float(0)
+gex_oi_call_values = is_active ? unified_gex_oi_call_values : array.new_float(0)
+gex_oi_put_values  = is_active ? unified_gex_oi_put_values  : array.new_float(0)
+vol_strikes        = is_active ? unified_vol_strikes        : array.new_float(0)
+vol_call_values    = is_active ? unified_vol_call_values    : array.new_float(0)
+vol_put_values     = is_active ? unified_vol_put_values     : array.new_float(0)
+dex_strikes        = is_active ? unified_dex_strikes        : array.new_float(0)
+dex_call_values    = is_active ? unified_dex_call_values    : array.new_float(0)
+dex_put_values     = is_active ? unified_dex_put_values     : array.new_float(0)
+dex_oi_call_values = is_active ? unified_dex_oi_call_values : array.new_float(0)
+dex_oi_put_values  = is_active ? unified_dex_oi_put_values  : array.new_float(0)
+
+// ===============================================
+// NÍVEIS INSTITUCIONAIS EM LINHAS
+// ===============================================
+display_levels() =>
+    if is_active
+__NIVEIS_PLACEHOLDER__
+
+// ===============================================
+// PRÉ-CÁLCULO: posição horizontal das barras
+// ===============================================
+left_time  = chart.left_visible_bar_time
+cond       = not na(left_time) ? time >= left_time : true
+left_index = ta.valuewhen(cond, bar_index, 0)
+
+// ===============================================
+// DESENHO DAS BARRAS (GEX, VOLUME, DEX)
+// ===============================================
+if barstate.islast
+    sz = array.size(boxes)
+    if sz > 0
+        for b = 0 to sz - 1
+            box.delete(array.get(boxes, b))
+        array.clear(boxes)
+
+    x_base_gv  = left_index + gv_offset_barras
+    x_base_dex = left_index + dex_offset_barras
+
+    // ── NET GEX VOL e OI (lado esquerdo) ───────────────────────────
+    valid_gex = math.min(array.size(gex_strikes), array.size(gex_call_values))
+    valid_gex := math.min(valid_gex, array.size(gex_put_values))
+
+    if valid_gex > 0
+        abs_nets_vol = array.new_float()
+        for i = 0 to valid_gex - 1
+            n = array.get(gex_call_values, i) + array.get(gex_put_values, i)
+            if n != 0
+                array.push(abs_nets_vol, math.abs(n))
+        max_gex_vol = array.size(abs_nets_vol) > 0 ? array.percentile_linear_interpolation(abs_nets_vol, 95) : 1.0
+        max_gex_vol := max_gex_vol == 0 ? 1.0 : max_gex_vol
+
+        abs_nets_oi = array.new_float()
+        for i = 0 to valid_gex - 1
+            n = array.get(gex_oi_call_values, i) + array.get(gex_oi_put_values, i)
+            if n != 0
+                array.push(abs_nets_oi, math.abs(n))
+        max_gex_oi = array.size(abs_nets_oi) > 0 ? array.percentile_linear_interpolation(abs_nets_oi, 95) : 1.0
+        max_gex_oi := max_gex_oi == 0 ? 1.0 : max_gex_oi
+
+        for i = 0 to valid_gex - 1
+            sk      = array.get(gex_strikes, i)
+            net_vol = array.get(gex_call_values, i)    + array.get(gex_put_values, i)
+            net_oi  = array.get(gex_oi_call_values, i) + array.get(gex_oi_put_values, i)
+
+            if net_oi != 0
+                norm_oi = math.min(math.abs(net_oi) / max_gex_oi, 1.0) * gv_escala_maxima
+                cor_oi  = net_oi > 0 ? color.new(gv_cor_net_pos, oi_opacidade) : color.new(gv_cor_net_neg, oi_opacidade)
+                array.push(boxes, box.new(left=x_base_gv - int(norm_oi), top=sk + gv_dist_y, right=x_base_gv, bottom=sk - gv_dist_y, xloc=xloc.bar_index, bgcolor=cor_oi, border_color=na, border_width=0))
+
+            if net_vol != 0
+                norm_vol = math.min(math.abs(net_vol) / max_gex_vol, 1.0) * gv_escala_maxima
+                cor_vol  = net_vol > 0 ? color.new(gv_cor_net_pos, gv_opacidade) : color.new(gv_cor_net_neg, gv_opacidade)
+                array.push(boxes, box.new(left=x_base_gv - int(norm_vol), top=sk + gv_dist_y, right=x_base_gv, bottom=sk - gv_dist_y, xloc=xloc.bar_index, bgcolor=cor_vol, border_color=na, border_width=0))
+
+    // ── VOLUME DOMINANTE (lado direito) ────────────────────────────
+    valid_vol = math.min(array.size(vol_strikes), array.size(vol_call_values))
+    valid_vol := math.min(valid_vol, array.size(vol_put_values))
+
+    if valid_vol > 0
+        max_vol = 0.0
+        for i = 0 to valid_vol - 1
+            max_vol := math.max(max_vol, math.max(array.get(vol_call_values, i), array.get(vol_put_values, i)))
+        max_vol := max_vol == 0 ? 1.0 : max_vol
+
+        opa_v = int(math.min(gv_opacidade + 10, 100))
+        for i = 0 to valid_vol - 1
+            sk  = array.get(vol_strikes, i)
+            cv  = array.get(vol_call_values, i)
+            pv  = array.get(vol_put_values, i)
+            dom = math.max(cv, pv)
+            if dom >= gv_min_volume
+                norm  = (dom / max_vol) * gv_escala_maxima
+                cor_v = cv >= pv ? color.new(gv_cor_vol_call, opa_v) : color.new(gv_cor_vol_put, opa_v)
+                array.push(boxes, box.new(left=x_base_gv, top=sk + gv_dist_y, right=x_base_gv + int(norm), bottom=sk - gv_dist_y, xloc=xloc.bar_index, bgcolor=cor_v, border_color=na, border_width=0))
+
+    // ── NET DEX VOL e OI ───────────────────────────────────────────
+    valid_dex = math.min(array.size(dex_strikes), array.size(dex_call_values))
+    valid_dex := math.min(valid_dex, array.size(dex_put_values))
+
+    if valid_dex > 0
+        abs_nets_dex_vol = array.new_float()
+        for i = 0 to valid_dex - 1
+            n = array.get(dex_call_values, i) + array.get(dex_put_values, i)
+            if n != 0
+                array.push(abs_nets_dex_vol, math.abs(n))
+        max_dex_vol = array.size(abs_nets_dex_vol) > 0 ? array.percentile_linear_interpolation(abs_nets_dex_vol, 95) : 1.0
+        max_dex_vol := max_dex_vol == 0 ? 1.0 : max_dex_vol
+
+        abs_nets_dex_oi = array.new_float()
+        for i = 0 to valid_dex - 1
+            n = array.get(dex_oi_call_values, i) + array.get(dex_oi_put_values, i)
+            if n != 0
+                array.push(abs_nets_dex_oi, math.abs(n))
+        max_dex_oi = array.size(abs_nets_dex_oi) > 0 ? array.percentile_linear_interpolation(abs_nets_dex_oi, 95) : 1.0
+        max_dex_oi := max_dex_oi == 0 ? 1.0 : max_dex_oi
+
+        for i = 0 to valid_dex - 1
+            sk      = array.get(dex_strikes, i)
+            net_vol = array.get(dex_call_values, i)    + array.get(dex_put_values, i)
+            net_oi  = array.get(dex_oi_call_values, i) + array.get(dex_oi_put_values, i)
+
+            if net_oi != 0
+                norm_oi = math.min(math.abs(net_oi) / max_dex_oi, 1.0) * dex_escala_maxima
+                cor_oi  = net_oi > 0 ? color.new(dex_cor_delta_pos, oi_opacidade) : color.new(dex_cor_delta_neg, oi_opacidade)
+                array.push(boxes, box.new(left=x_base_dex - int(norm_oi), top=sk + dex_dist_y, right=x_base_dex, bottom=sk - dex_dist_y, xloc=xloc.bar_index, bgcolor=cor_oi, border_color=na, border_width=0))
+
+            if net_vol != 0
+                norm_vol = math.min(math.abs(net_vol) / max_dex_vol, 1.0) * dex_escala_maxima
+                cor_vol  = net_vol > 0 ? color.new(dex_cor_delta_pos, dex_opacidade) : color.new(dex_cor_delta_neg, dex_opacidade)
+                array.push(boxes, box.new(left=x_base_dex - int(norm_vol), top=sk + dex_dist_y, right=x_base_dex, bottom=sk - dex_dist_y, xloc=xloc.bar_index, bgcolor=cor_vol, border_color=na, border_width=0))
+
+// ===============================================
+// LINHAS E RÓTULOS
+// ===============================================
+clear_objects()
+display_levels()
+
+plot(na, title="__dummy__", display=display.none)
+"""
+
+
+# ─────────────────────────────────────────────────────────────────
+# 17.2 · HELPERS NUMÉRICOS LOCAIS
+# ─────────────────────────────────────────────────────────────────
+def _gp_clean(v) -> float:
+    try:
+        v = float(v)
+        return 0.0 if (math.isnan(v) or math.isinf(v)) else v
+    except Exception:
+        return 0.0
+
+def _gp_fmt_num(v) -> str:
+    """
+    Formata float pra inclusão no array.from() do Pine.
+    SEMPRE preserva o ponto decimal: '29500' viraria array<int> no Pine v6
+    e quebraria o ternário 'is_active ? array<float> : array.new_float(0)'.
+    """
+    fv = float(v)
+    s = f"{fv:.4f}".rstrip("0").rstrip(".")
+    if "." not in s:
+        s += ".0"
+    return s
+
+
+# ─────────────────────────────────────────────────────────────────
+# 17.3 · BUILD ARRAYS — agregação por strike (sem z-score, sem peso)
+# ─────────────────────────────────────────────────────────────────
+
+def _gp_build_arrays_block(df_pine: pd.DataFrame, spot: float,
+                            s_lo: float, s_hi: float, cfd_off: float,
+                            snapshot: str) -> tuple:
+    """
+    Agrega df_pine (output de calcular_v9) por (strikePrice, optionType).
+    Já filtrado em ±2% do spot.
+    Aplica cfd_offset aos strikes para alinhar com o chart do TradingView.
+    Puts ficam com sinal negativo (convenção do Pine que renderiza
+    'CALL + | PUT -' nas barras).
+    """
+    if df_pine.empty:
+        return "", []
+
+    d = df_pine[
+        (df_pine["strikePrice"] >= s_lo) &
+        (df_pine["strikePrice"] <= s_hi)
+    ].copy()
+    if d.empty:
+        return "", []
+
+    calls = d[d["optionType"] == "Call"].groupby("strikePrice").agg(
+        gex_total=("gex_total", "sum"),
+        gex_oi   =("gex_oi",    "sum"),
+        dex_total=("dex_total", "sum"),
+        dex_oi   =("dex_oi",    "sum"),
+        volume   =("volume",    "sum"),
+        oi       =("openInterest", "sum"),
+    )
+    puts = d[d["optionType"] == "Put"].groupby("strikePrice").agg(
+        gex_total=("gex_total", "sum"),
+        gex_oi   =("gex_oi",    "sum"),
+        dex_total=("dex_total", "sum"),
+        dex_oi   =("dex_oi",    "sum"),
+        volume   =("volume",    "sum"),
+        oi       =("openInterest", "sum"),
+    )
+
+    # Convenção Pine: puts com sinal negativo nos arrays
+    for col in ("gex_total", "gex_oi", "dex_total", "dex_oi"):
+        puts[col] = -puts[col].abs()
+
+    all_strikes = sorted(set(calls.index) | set(puts.index))
+    if not all_strikes:
+        return "", []
+
+    strikes      = []
+    g_calls      = []; g_puts      = []
+    g_oi_calls   = []; g_oi_puts   = []
+    v_calls      = []; v_puts      = []
+    d_calls      = []; d_puts      = []
+    d_oi_calls   = []; d_oi_puts   = []
+    d_net        = []
+
+    for sk in all_strikes:
+        c = calls.loc[sk] if sk in calls.index else None
+        p = puts.loc[sk]  if sk in puts.index  else None
+        val_c = _gp_clean(c["dex_total"] if c is not None else 0)
+        val_p = _gp_clean(p["dex_total"] if p is not None else 0)
+
+        strikes.append(   _gp_fmt_num(sk + cfd_off))
+        g_calls.append(   _gp_fmt_num(_gp_clean(c["gex_total"] if c is not None else 0)))
+        g_puts.append(    _gp_fmt_num(_gp_clean(p["gex_total"] if p is not None else 0)))
+        g_oi_calls.append(_gp_fmt_num(_gp_clean(c["gex_oi"]    if c is not None else 0)))
+        g_oi_puts.append( _gp_fmt_num(_gp_clean(p["gex_oi"]    if p is not None else 0)))
+        v_calls.append(   _gp_fmt_num(_gp_clean(c["volume"]    if c is not None else 0)))
+        v_puts.append(    _gp_fmt_num(_gp_clean(p["volume"]    if p is not None else 0)))
+        d_calls.append(   _gp_fmt_num(val_c))
+        d_puts.append(    _gp_fmt_num(val_p))
+        d_oi_calls.append(_gp_fmt_num(_gp_clean(c["dex_oi"]    if c is not None else 0)))
+        d_oi_puts.append( _gp_fmt_num(_gp_clean(p["dex_oi"]    if p is not None else 0)))
+        d_net.append(     _gp_fmt_num(val_c + val_p))
+
+    cfd_tag = f"  |  CFD offset: {cfd_off:+.2f}" if cfd_off != 0.0 else ""
+    header = (
+        f"// ═══════════════════════════════════════════════════════\n"
+        f"// ARRAYS — {_CFG['nome']} (agregação direta, sem z-score)\n"
+        f"// Snapshot: {snapshot}  |  Spot: {spot:.2f}{cfd_tag}\n"
+        f"// Janela: ±{_CFG['win_focus_pct']*100:.0f}% = [{s_lo:.2f}, {s_hi:.2f}]\n"
+        f"// Strikes: {len(strikes)}\n"
+        f"// Gerado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"// ═══════════════════════════════════════════════════════"
+    )
+
+    linhas = [
+        header,
+        f"unified_gex_strikes        = array.from({', '.join(strikes)})",
+        f"unified_gex_call_values    = array.from({', '.join(g_calls)})",
+        f"unified_gex_put_values     = array.from({', '.join(g_puts)})",
+        f"unified_gex_oi_call_values = array.from({', '.join(g_oi_calls)})",
+        f"unified_gex_oi_put_values  = array.from({', '.join(g_oi_puts)})",
+        f"unified_vol_strikes        = array.from({', '.join(strikes)})",
+        f"unified_vol_call_values    = array.from({', '.join(v_calls)})",
+        f"unified_vol_put_values     = array.from({', '.join(v_puts)})",
+        f"unified_dex_strikes        = array.from({', '.join(strikes)})",
+        f"unified_dex_call_values    = array.from({', '.join(d_calls)})",
+        f"unified_dex_put_values     = array.from({', '.join(d_puts)})",
+        f"unified_dex_oi_call_values = array.from({', '.join(d_oi_calls)})",
+        f"unified_dex_oi_put_values  = array.from({', '.join(d_oi_puts)})",
+        f"unified_dex_net_values     = array.from({', '.join(d_net)})",
+    ]
+    return "\n".join(linhas), all_strikes
+
+
+# ─────────────────────────────────────────────────────────────────
+# 17.4 · CÁLCULO DE NÍVEIS INSTITUCIONAIS (USD-space, sem bucket)
+# ─────────────────────────────────────────────────────────────────
+
+def _gp_calcular_niveis(df_pine: pd.DataFrame, spot: float) -> list:
+    if df_pine.empty:
+        return []
+
+    niveis = []
+    def add(nome, strike, cor, estilo):
+        niveis.append(dict(
+            nome=nome, strike=float(strike),
+            cor_pine=cor, estilo=estilo,
+        ))
+
+    agg = df_pine.groupby("strikePrice").agg(
+        gex_total =("gex_total", "sum"),
+        gex_oi    =("gex_oi",    "sum"),
+        dex_total =("dex_total", "sum"),
+        dex_oi    =("dex_oi",    "sum"),
+        vanna_total=("vanna_total", "sum"),
+        volume    =("volume", "sum"),
+        openInterest=("openInterest", "sum"),
+        financial_flow=("financial_flow", "sum"),
+    ).sort_index()
+
+    calls_agg = df_pine[df_pine["optionType"] == "Call"].groupby("strikePrice").agg(
+        volume        =("volume", "sum"),
+        openInterest  =("openInterest", "sum"),
+        financial_flow=("financial_flow", "sum"),
+        dex_total     =("dex_total", "sum"),
+    ).sort_index()
+    puts_agg = df_pine[df_pine["optionType"] == "Put"].groupby("strikePrice").agg(
+        volume        =("volume", "sum"),
+        openInterest  =("openInterest", "sum"),
+        financial_flow=("financial_flow", "sum"),
+        dex_total     =("dex_total", "sum"),
+    ).sort_index()
+
+    gex_s   = agg["gex_total"]
+    dex_s   = agg["dex_total"]
+    strikes = gex_s.index.tolist()
+
+    # ── GAMMA WALL ───────────────────────────────────────────────
+    gamma_wall = float(gex_s.abs().idxmax()) if not gex_s.empty else float(spot)
+    lbl_gw = ("MAX GEX | GAMMA WALL | MM VENDE" if gamma_wall > spot
+              else "MAX GEX | GAMMA WALL | MM COMPRA")
+    add(lbl_gw, gamma_wall, "color.rgb(57,142,232)", "Sólido")
+
+    # ── GAMMA FLIP (zero-cross interpolado) ──────────────────────
+    gamma_flip = None
+    for i in range(len(strikes) - 1):
+        g0 = gex_s.iloc[i]; g1 = gex_s.iloc[i + 1]
+        if g0 * g1 < 0:
+            k0 = strikes[i]; k1 = strikes[i + 1]
+            gamma_flip = k0 + (k1 - k0) * (-g0) / (g1 - g0)
+            break
+    if gamma_flip is None:
+        gamma_flip = float(gex_s.abs().idxmin()) if not gex_s.empty else float(spot)
+    add("GAMMA FLIP (EST) | Divisor de Regime",
+        gamma_flip, "color.rgb(82,157,255)", "Sólido")
+
+    # ── MAX VOL ──────────────────────────────────────────────────
+    vol_s = agg["volume"]
+    if not vol_s.empty and vol_s.sum() > 0:
+        add("MAX VOL | Imã de Liquidez",
+            float(vol_s.idxmax()), "color.rgb(240,192,64)", "Tracejado")
+
+    # ── DELTA FLIP ───────────────────────────────────────────────
+    df_encontrado = False
+    for i in range(len(strikes) - 1):
+        d0 = dex_s.iloc[i]; d1 = dex_s.iloc[i + 1]
+        if d0 * d1 < 0:
+            add("DELTA FLIP | Inversao de Risco",
+                float(strikes[i + 1]), "color.rgb(82,157,255)", "Sólido")
+            df_encontrado = True
+            break
+    if not df_encontrado and not dex_s.empty:
+        add("DELTA FLIP (EST) | Inversao de Risco",
+            float(dex_s.abs().idxmin()), "color.rgb(82,157,255)", "Sólido")
+
+    # ── CALL/PUT WALLS ───────────────────────────────────────────
+    if not calls_agg.empty and calls_agg["volume"].sum() > 0:
+        add("CALL WALL (VOL) | Resistencia de Fluxo",
+            float(calls_agg["volume"].idxmax()), "color.rgb(176,39,46)", "Tracejado")
+    if not calls_agg.empty and calls_agg["openInterest"].sum() > 0:
+        add("CALL WALL (OI) | Teto Estrutural",
+            float(calls_agg["openInterest"].idxmax()), "color.rgb(176,39,46)", "Sólido")
+    if not puts_agg.empty and puts_agg["volume"].sum() > 0:
+        add("PUT WALL (VOL) | Defesa de Fluxo",
+            float(puts_agg["volume"].idxmax()), "color.rgb(82,157,255)", "Tracejado")
+    if not puts_agg.empty and puts_agg["openInterest"].sum() > 0:
+        add("PUT WALL (OI) | Muro Estrutural",
+            float(puts_agg["openInterest"].idxmax()), "color.rgb(82,157,255)", "Sólido")
+
+    # ── DEX-C top 2 ──────────────────────────────────────────────
+    if not calls_agg.empty:
+        for sk in calls_agg["dex_total"].nlargest(2).index:
+            lbl = ("DELTA POS (VOL) | Amplificacao de Compra" if sk > spot
+                   else "DELTA NEG (VOL) | Defesa Ativa Venda")
+            cor = ("color.rgb(82,157,255)" if sk > spot
+                   else "color.rgb(235,12,12)")
+            add(lbl, float(sk), cor, "Tracejado")
+
+    # ── DEX-P top 2 ──────────────────────────────────────────────
+    if not puts_agg.empty:
+        for sk in puts_agg["dex_total"].nsmallest(2).index:
+            lbl = ("DELTA NEG (VOL) | Defesa Ativa Venda" if sk > spot
+                   else "DELTA POS (VOL) | Amplificacao de Compra")
+            cor = ("color.rgb(235,12,12)" if sk > spot
+                   else "color.rgb(82,157,255)")
+            add(lbl, float(sk), cor, "Tracejado")
+
+    # ── TOP VANNA ────────────────────────────────────────────────
+    vanna_s = agg["vanna_total"]
+    if not vanna_s.empty:
+        for sk in vanna_s.abs().nlargest(3).index:
+            val = vanna_s[sk]; pos = val > 0
+            lbl = ("VANNA + | Pressao Compradora" if pos
+                   else "VANNA - | Pressao Vendedora")
+            cor = "color.rgb(0,230,118)" if pos else "color.rgb(255,23,68)"
+            add(lbl, float(sk), cor, "Tracejado")
+
+    # ── VOL TRIGGER ──────────────────────────────────────────────
+    vol_trigger = (gamma_flip + 0.75 * (gamma_wall - gamma_flip)
+                   if gamma_wall != gamma_flip else gamma_flip)
+    add("VOL TRIGGER | Perda de Controle",
+        vol_trigger, "color.rgb(76,87,77)", "Sólido")
+
+    # ── GEX OI / DEX OI POS-NEG ──────────────────────────────────
+    goi = agg["gex_oi"]
+    if not goi.empty:
+        add("MAX GEX | GAMMA POS (OI) | Suporte Estrutural",
+            float(goi.idxmax()), "color.rgb(57,142,232)", "Sólido")
+        add("MIN GEX | GAMMA NEG (OI) | VOL ATTACK | Risco Estrutural",
+            float(goi.idxmin()), "color.rgb(91,2,2)", "Sólido")
+    doi = agg["dex_oi"]
+    if not doi.empty:
+        add("DELTA POS (OI) | MM Vendido Estrutural",
+            float(doi.idxmax()), "color.rgb(57,142,232)", "Sólido")
+        add("DELTA NEG (OI) | MM Comprado Estrutural",
+            float(doi.idxmin()), "color.rgb(91,2,2)", "Sólido")
+
+    # ── GEX/DEX VOL POS-NEG ──────────────────────────────────────
+    if not gex_s.empty:
+        add("GAMMA POS (VOL) | Zona de Atracao",
+            float(gex_s.idxmax()), "color.rgb(82,157,255)", "Tracejado")
+        add("GAMMA NEG (VOL) | Pressao de Venda",
+            float(gex_s.idxmin()), "color.rgb(235,12,12)", "Tracejado")
+    if not dex_s.empty:
+        add("DELTA POS (VOL) | Amplificacao de Compra",
+            float(dex_s.idxmax()), "color.rgb(82,157,255)", "Tracejado")
+        add("DELTA NEG (VOL) | Defesa Ativa Venda",
+            float(dex_s.idxmin()), "color.rgb(235,12,12)", "Tracejado")
+
+    add("SPOT", float(spot), "color.gray", "Sólido")
+
+    return sorted(niveis, key=lambda x: x["strike"], reverse=True)
+
+
+# ─────────────────────────────────────────────────────────────────
+# 17.5 · AGRUPAMENTO DE NÍVEIS POR STRIKE EXATO
+# ─────────────────────────────────────────────────────────────────
+_GP_MAX_TAGS = 3
+
+def _gp_prioridade(nome: str) -> int:
+    n = nome.upper()
+    if "GAMMA WALL" in n or "VOL ATTACK" in n:   return 5
+    if "GAMMA FLIP" in n or "DELTA FLIP" in n:   return 4
+    if "VOL TRIGGER" in n:                        return 4
+    if "(OI)" in n:                               return 3
+    if "MAX VOL" in n:                            return 2
+    if "(VOL)" in n or "VANNA" in n:              return 1
+    if "SPOT" in n:                               return 0
+    return 1
+
+def _gp_tag_curta(nome: str) -> str:
+    parte = nome.split("|")[0].strip()
+    mapa = {
+        "MAX VOL":                            "MAX-VOL",
+        "MAX GEX | GAMMA WALL | MM VENDE":    "Gamma (VENDE)",
+        "MAX GEX | GAMMA WALL | MM COMPRA":   "Gamma (COMPRA)",
+        "MAX GEX | GAMMA WALL":               "Gamma Wall",
+        "GAMMA FLIP (EST)":                   "Gamma FLIP",
+        "GAMMA FLIP":                         "Gamma FLIP",
+        "DELTA FLIP (EST)":                   "Delta FLIP",
+        "DELTA FLIP":                         "Delta FLIP",
+        "VOL TRIGGER":                        "VOL-TRIG",
+        "CALL WALL (OI)":                     "Call Wall-OI",
+        "PUT WALL (OI)":                      "Put Wall-OI",
+        "CALL WALL (VOL)":                    "Call Wall VOL",
+        "PUT WALL (VOL)":                     "Put Wall VOL",
+        "MAX GEX | GAMMA POS (OI)":           "Gamma Pos. OI",
+        "MIN GEX | GAMMA NEG (OI)":           "Gamma Neg. OI",
+        "GAMMA POS (VOL)":                    "Gamma Pos. Vol",
+        "GAMMA NEG (VOL)":                    "Gamma Neg. Vol",
+        "DELTA POS (OI)":                     "Delta Pos. OI",
+        "DELTA NEG (OI)":                     "Delta Neg. OI",
+        "DELTA POS (VOL)":                    "Delta Pos VOL",
+        "DELTA NEG (VOL)":                    "Delta Neg. VOL",
+        "VANNA +":                            "VANNA+",
+        "VANNA -":                            "VANNA-",
+    }
+    pu = parte.upper()
+    for chave, abrev in mapa.items():
+        if chave.upper() in pu:
+            return abrev
+    return parte[:20].strip()
+
+def _gp_cor_do_grupo(itens: list) -> tuple:
+    melhor = max(itens, key=lambda x: _gp_prioridade(x["nome"]))
+    return melhor["cor_pine"], melhor["estilo"]
+
+def _gp_agrupar_niveis(niveis_raw: list, cfd_off: float) -> list:
+    """
+    Agrupa por strike EXATO (sem bucket). Aplica cfd_offset no Y de saída.
+    Quando >3 niveis coincidem no mesmo strike, divide em blocos com offset.
+    """
+    por_strike = defaultdict(list)
+    for n in niveis_raw:
+        # arredonda para 4 casas pra evitar floats infinitesimalmente diferentes
+        chave = round(n["strike"], 4)
+        por_strike[chave].append(n)
+
+    resultado = []
+    for strike in sorted(por_strike.keys(), reverse=True):
+        itens = sorted(por_strike[strike],
+                       key=lambda x: _gp_prioridade(x["nome"]), reverse=True)
+        if len(itens) == 1:
+            it = itens[0]
+            resultado.append({
+                "label":  it["nome"],
+                "strike": strike + cfd_off,
+                "cor":    it["cor_pine"],
+                "estilo": it["estilo"],
+            })
+        elif len(itens) <= _GP_MAX_TAGS:
+            cor, est = _gp_cor_do_grupo(itens)
+            resultado.append({
+                "label":  " + ".join(_gp_tag_curta(it["nome"]) for it in itens),
+                "strike": strike + cfd_off,
+                "cor":    cor, "estilo": est,
+            })
+        else:
+            grupos = [itens[i:i + _GP_MAX_TAGS]
+                      for i in range(0, len(itens), _GP_MAX_TAGS)]
+            for gi, g_itens in enumerate(grupos):
+                cor, est = _gp_cor_do_grupo(g_itens)
+                resultado.append({
+                    "label":  " + ".join(_gp_tag_curta(it["nome"]) for it in g_itens),
+                    "strike": strike + cfd_off + gi * _CFG["offset_split"],
+                    "cor": cor, "estilo": est,
+                })
+    return sorted(resultado, key=lambda x: x["strike"], reverse=True)
+
+
+def _gp_build_niveis_block(df_pine: pd.DataFrame, spot: float,
+                            cfd_off: float) -> str:
+    niveis_raw = _gp_calcular_niveis(df_pine, spot)
+    if not niveis_raw:
+        return "        // (nenhum nível calculado — verifique os dados)"
+    niveis_agrup = _gp_agrupar_niveis(niveis_raw, cfd_off)
+
+    linhas = [
+        f"        // {len(niveis_raw)} níveis → {len(niveis_agrup)} linhas após agrupamento",
+        f"        // Gerado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+    ]
+    for n in niveis_agrup:
+        # Format strike: inteiro se for inteiro, senão 2 casas decimais
+        sk_v = n["strike"]
+        sk_str = (f"{sk_v:.0f}" if abs(sk_v - round(sk_v)) < 1e-6
+                  else f"{sk_v:.2f}")
+        linhas.append(
+            f"        create_indicator('{n['label']}', "
+            f"{sk_str}, {n['cor']}, '{n['estilo']}')"
+        )
+    return "\n".join(linhas)
+
+
+# ─────────────────────────────────────────────────────────────────
+# 17.6 · ORQUESTRADOR
+# ─────────────────────────────────────────────────────────────────
+
+def _gp_gerar_pine_completo(df_raw_local: pd.DataFrame, spot_local: float,
+                              cfd_off: float, mult: float, snapshot: str) -> str:
+    # Janela ±X% do spot (real, antes do offset)
+    s_lo = spot_local * (1 - _CFG["win_focus_pct"])
+    s_hi = spot_local * (1 + _CFG["win_focus_pct"])
+
+    # df_pine fresh: focada na janela, sem filtro de min_fin
+    df_pine = calcular_v9(
+        df_raw_local, spot_local, s_lo, s_hi,
+        min_fin=0.0, mult=mult,
+    )
+    if df_pine is None or df_pine.empty:
+        raise RuntimeError(
+            f"Sem dados na janela ±{_CFG['win_focus_pct']*100:.0f}% "
+            f"[{s_lo:.2f}, {s_hi:.2f}] do spot {spot_local:.2f}"
+        )
+
+    arrays_block, _ = _gp_build_arrays_block(
+        df_pine, spot_local, s_lo, s_hi, cfd_off, snapshot,
+    )
+    niveis_block = _gp_build_niveis_block(df_pine, spot_local, cfd_off)
+
+    # Constrói a expressão "ativo == 'X' or ativo == 'Y' or ..."
+    is_active_expr = " or ".join(
+        f"ativo == '{tk}'" for tk in _CFG["tickers"]
+    )
+
+    pine = _PINE_TEMPLATE
+    pine = pine.replace("__ATIVO_NOME__",         _CFG["nome"])
+    pine = pine.replace("__IS_ACTIVE_EXPR__",     is_active_expr)
+    pine = pine.replace("__MEIA_ALTURA__",        f"{_CFG['meia_altura']}")
+    pine = pine.replace("__ARRAYS_PLACEHOLDER__", arrays_block)
+    pine = pine.replace("__NIVEIS_PLACEHOLDER__", niveis_block)
+    return pine
+
+
+# ─────────────────────────────────────────────────────────────────
+# 17.7 · UI — BOTÃO + DOWNLOAD
+# ─────────────────────────────────────────────────────────────────
+
+st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
+section(f"INDICADOR TRADINGVIEW — PINE SCRIPT ({_CFG['nome']})")
+
+_s_lo_disp = spot * (1 - _CFG["win_focus_pct"])
+_s_hi_disp = spot * (1 + _CFG["win_focus_pct"])
+_cfd_msg = (f" · CFD offset <b style='color:#fa0;'>{cfd_offset:+.2f}</b>"
+            if cfd_offset != 0.0 else "")
+
+st.markdown(
+    f"<div style='font-family:JetBrains Mono,monospace;font-size:13px;"
+    f"color:#8a9bb5;margin-bottom:8px;'>"
+    f"Gera o Pine personalizado para <b style='color:#0ff;'>{_CFG['nome']}</b> "
+    f"com os dados atuais "
+    f"(spot <b style='color:#fa0;'>{_fmt_strike_cfd(spot)}</b>, "
+    f"janela <b style='color:#0ff;'>±{_CFG['win_focus_pct']*100:.0f}%</b> = "
+    f"[{_fmt_strike_cfd(_s_lo_disp)}, {_fmt_strike_cfd(_s_hi_disp)}], "
+    f"snapshot <b style='color:#0ff;'>{momento}</b>{_cfd_msg})."
+    f"</div>",
+    unsafe_allow_html=True,
+)
+
+_btn_key = f"gerar_pine_{_PINE_ATIVO}"
+if st.button(f"🌲 Gerar Indicador TradingView ({_CFG['nome']})",
+             use_container_width=True, type="primary", key=_btn_key):
+    try:
+        with st.spinner("⚙️ Gerando Pine Script..."):
+            pine_final = _gp_gerar_pine_completo(
+                df_raw, spot, cfd_offset,
+                float(MULTIPLICADOR_FIXO), momento,
+            )
+        st.session_state[f"pine_final_{_PINE_ATIVO}"] = pine_final
+        st.markdown(
+            alert_box(
+                f"✅ Pine gerado com sucesso "
+                f"({len(pine_final):,} caracteres). "
+                f"Clique no botão abaixo para baixar.",
+                "success"
+            ),
+            unsafe_allow_html=True,
+        )
+    except Exception as e:
+        st.markdown(
+            alert_box(f"❌ Erro ao gerar Pine: {e}", "danger"),
+            unsafe_allow_html=True,
+        )
+
+_pine_key = f"pine_final_{_PINE_ATIVO}"
+if _pine_key in st.session_state and st.session_state[_pine_key]:
+    st.download_button(
+        label=f"⬇️ Download — {_CFG['filename']}",
+        data=st.session_state[_pine_key],
+        file_name=_CFG["filename"],
+        mime="text/plain",
+        use_container_width=True,
+        key=f"dl_pine_{_PINE_ATIVO}",
+    )
+    with st.expander("👀 Pré-visualizar Pine Script", expanded=False):
+        st.code(st.session_state[_pine_key], language="pine")
 
 # ══════════════════════════════════════════════════════════════════
 # 19 · RODAPÉ
