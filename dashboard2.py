@@ -747,13 +747,11 @@ def build_pressure_chart(df, spot, niveis=None):
 with st.sidebar:
     st.markdown("<div style='font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:#0ff;letter-spacing:2px;padding:10px 0 16px;text-shadow:0 0 6px #0ff;'>⚙ SETUP OPERACIONAL</div>", unsafe_allow_html=True)
 
-    nomes_disponiveis=listar_arquivos_github()
-
-    st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
-    snapshots={}
-    if nomes_disponiveis: snapshots=agrupar_snapshots(nomes_disponiveis)
-    if snapshots: momento=st.selectbox("📅 Snapshot (data):",list(snapshots.keys()))
-    else: momento=None; st.info("Aguardando arquivos no GitHub...")
+    nomes_disponiveis = listar_arquivos_github()
+    snapshots = {}
+    if nomes_disponiveis:
+        snapshots = agrupar_snapshots(nomes_disponiveis)
+    momento = list(snapshots.keys())[0] if snapshots else None
 
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     modo_spot=st.radio("🎯 Fonte do Spot:",["Automático","Manual"],horizontal=True)
@@ -762,7 +760,6 @@ with st.sidebar:
         spot_manual_str=st.text_input("💲 Spot Atual:",value="",placeholder="Ex: 27200")
         try: spot_in=float(spot_manual_str.replace(",",".")) if spot_manual_str.strip() else None
         except: st.warning("⚠ Spot inválido."); spot_in=None
-
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     _sb_key=f"pcp_sb_{momento}"
     if _sb_key not in st.session_state and momento and snapshots.get(momento):
@@ -780,7 +777,6 @@ with st.sidebar:
         if _pcp_sb.get("delta_flip_abaixo") is not None:
             st.markdown(f"<div style='font-size:13px;color:#8a9bb5;'>Δ flip: {_fmt_strike_cfd(_pcp_sb['delta_flip_abaixo'])} → {_fmt_strike_cfd(_pcp_sb['delta_flip_acima'])}</div>", unsafe_allow_html=True)
         st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
-
     st.markdown("<div style='color:#0ff;font-size:13px;letter-spacing:2px;'>📏 RANGE DE STRIKES</div>", unsafe_allow_html=True)
     col_s1,col_s2=st.columns(2)
     with col_s1: s_min_str=st.text_input("Strike Mín",value="0")
@@ -789,17 +785,14 @@ with st.sidebar:
     except: s_min=0.0
     try: s_max=float(s_max_str.replace(",","."))
     except: s_max=999999.0
-
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     min_fin=st.number_input("💰 Vol. Financeiro Mín ($)",value=0,step=10_000,format="%d")
-
     st.markdown("<div class='glow-divider'></div>", unsafe_allow_html=True)
     spot_cfd_str = st.text_input(
         "💱 Spot CFD (ajuste manual):",
         value="",
-        placeholder="Ex: 4200  (vazio = sem ajuste)"
+        placeholder="Ex: 4500  (vazio = sem ajuste)"
     )
-
 # ══════════════════════════════════════════════════════════════════
 # 11 · HEADER
 # ══════════════════════════════════════════════════════════════════
