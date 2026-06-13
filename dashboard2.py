@@ -1145,7 +1145,7 @@ from collections import defaultdict
 # ─────────────────────────────────────────────────────────────────
 # 17.0 · CONFIGURAÇÃO POR DASHBOARD  ← AJUSTAR APENAS ESTA LINHA
 # ─────────────────────────────────────────────────────────────────
-_PINE_ATIVO = "NASDAQ"   # "NASDAQ" | "SP500" | "GOLD"
+_PINE_ATIVO = "GOLD"   # "NASDAQ" | "SP500" | "GOLD"
 
 _PINE_CONFIGS = {
     "NASDAQ": dict(
