@@ -1123,6 +1123,8 @@ if not res_intel["whales"].empty:
                 sk=row["strikePrice"]; acao,cor,desc,dist_fmt=legenda_whale_ctx(sk,"Put",spot)
                 st.markdown(f"<div class='whale-card' title='{desc}'><b class='text-cyan' style='font-size:13px;'>{_fmt_strike_cfd(sk)}P</b> <span style='color:{cor};font-size:13px;font-weight:bold;'>{acao}</span><span class='text-dim' style='float:right;font-size:13px;'>{dist_fmt} do spot</span><br><span class='text-red' style='font-size:13px;'>z={row['z_score']:.1f}</span><span class='text-dim' style='font-size:13px;'> &nbsp;·&nbsp; ΔFlow {fmt_M(abs(row['d_flow']))} &nbsp;·&nbsp; Vol {row['volume']:,.0f} &nbsp;·&nbsp; Fin {fmt_M(row.get('financial_flow',0))}</span></div>", unsafe_allow_html=True)
         else: st.caption("Sem anomalias.")
+
+
 # ══════════════════════════════════════════════════════════════════
 # 17 · GERADOR DE INDICADOR TRADINGVIEW (PINE SCRIPT)
 # ──────────────────────────────────────────────────────────────────
@@ -1163,9 +1165,9 @@ _PINE_CONFIGS = {
         win_focus_pct     = 0.02,
     ),
     "GOLD": dict(
-        nome              = "OURO",
+        nome              = "GOLD",
         tickers           = ["GOLD", "XAUUSD", "GCZ2025", "MGCZ2025", "GC1!", "MGC1!"],
-        filename          = "Gamma Levels OURO.txt",
+        filename          = "gold.txt",
         meia_altura       = 1,
         offset_split      = 2,
         win_focus_pct     = 0.02,
